@@ -1,81 +1,91 @@
-# Run work while you sleep
+<a id="run-work-while-you-sleep"></a>
 
-This is the payoff for everything before it. An agent you can trust to verify its own work is an agent you can leave alone with a hard task. What makes that safe isn't hope. It's a checkable finish condition, an isolated worktree, and a decision log you audit in the morning.
+# ปล่อยให้ทำงานระหว่างที่คุณนอน
 
-![She waves goodnight from the door while robots keep the factory running, one updating a DECISION LOG wall board under a BUILD LOOP ACTIVE sign.](./images/overnight.jpg)
+นี่คือผลตอบแทนจากทุกขั้นตอนที่ผ่านมา เอเจนต์ที่คุณเชื่อใจให้ตรวจงานของตัวเองได้ คือเอเจนต์ที่ฝากงานยากไว้ให้ทำตามลำพังได้ ความปลอดภัยมาจากเกณฑ์งานเสร็จที่ตรวจได้ worktree ที่แยกไว้ และบันทึกการตัดสินใจที่คุณตรวจตอนเช้า
 
-## The overnight contract
+![ผู้ใช้โบกมือราตรีสวัสดิ์จากประตู ขณะที่หุ่นยนต์ทำงานในโรงงานต่อ ตัวหนึ่งอัปเดตกระดาน DECISION LOG ใต้ป้าย BUILD LOOP ACTIVE](./images/overnight.jpg)
 
-A good handoff has the goal, the finish condition, permissions, and an escape hatch. It doesn't need to be long:
+<a id="the-overnight-contract"></a>
+
+## ข้อตกลงสำหรับงานข้ามคืน
+
+การส่งต่องานที่ดีมีเป้าหมาย เกณฑ์งานเสร็จ สิทธิ์ที่อนุญาต และทางออกเมื่อไปต่อไม่ได้ ไม่จำเป็นต้องยาว:
 
 ```text
-/poteto-mode im going to bed. migrate every caller to the new parser in a fresh worktree off <base>.
-done means zero old callers, all parser fixtures pass, old api deleted.
-keep a decision log. don't ask me before committing.
-/loop until done. if you're truly stuck after a few hours, stop and write up why.
+/poteto-mode ผมจะนอนแล้ว ย้ายผู้เรียกทุกจุดไปใช้ parser ใหม่ ใน worktree ใหม่ที่แตกจาก <base>
+งานเสร็จคือไม่มีผู้เรียกแบบเก่า ข้อมูลทดสอบ parser ผ่านทั้งหมด และลบ api เก่าแล้ว
+เก็บบันทึกการตัดสินใจ ไม่ต้องถามก่อน commit
+/loop จนเสร็จ ถ้าติดจริง ๆ หลังลองหลายชั่วโมง ให้หยุดและเขียนเหตุผล
 ```
 
-Walk through what each line buys you:
+แต่ละบรรทัดช่วยอะไรบ้าง:
 
-- "im going to bed" is a session override. The agent stops asking and keeps going.
-- "done means..." turns the goal into checks every iteration can run.
-- "fresh worktree off `<base>`" keeps the run from colliding with anything else you have open.
-- "don't ask me before committing" pre-answers the permission the agent would otherwise block on.
-- `/loop` is Cursor's built-in wake mechanism, not a pstack skill. The [Autonomous run playbook](../../skills/poteto-mode/playbooks/autonomous-run.md) uses it to re-check the finish condition on events or a heartbeat.
-- The escape hatch lets it stop at a genuine dead end and write up why, which beats eight hours of creative goal reinterpretation.
+- “ผมจะนอนแล้ว” เปลี่ยนวิธีทำงานของเซสชัน เอเจนต์จะหยุดถามและทำต่อ
+- “งานเสร็จคือ...” เปลี่ยนเป้าหมายให้เป็นรายการที่ตรวจได้ทุกครั้งที่วนทำงาน
+- “worktree ใหม่ที่แตกจาก `<base>`” ป้องกันงานชนกับสิ่งอื่นที่คุณเปิดอยู่
+- “ไม่ต้องถามก่อน commit” ตอบเรื่องสิทธิ์ล่วงหน้า เพื่อไม่ให้เอเจนต์หยุดรอ
+- `/loop` เป็นกลไกปลุกงานในตัวของ Cursor ไม่ใช่สกิล pstack [แนวทาง Autonomous run](../../skills/poteto-mode/playbooks/autonomous-run.md) ใช้เพื่อตรวจเกณฑ์งานเสร็จเมื่อมีเหตุการณ์หรือตามรอบเวลา
+- ทางออกเมื่อไปต่อไม่ได้ช่วยให้หยุดที่ทางตันจริงและเขียนเหตุผล แทนการใช้แปดชั่วโมงตีความเป้าหมายใหม่ไปเรื่อย ๆ
 
-Because you'll review this work after stepping away, `/poteto-mode` routes it through [`/figure-it-out`](../../skills/figure-it-out/SKILL.md), which designs the run's phases before any code and wires in the decision log.
+เพราะคุณจะรีวิวงานหลังกลับมา `/poteto-mode` จึงส่งผ่าน [`/figure-it-out`](../../skills/figure-it-out/SKILL.md) เพื่อออกแบบระยะการทำงานก่อนเขียนโค้ด และจัดให้มีบันทึกการตัดสินใจ
 
-## What the loop does all night
+<a id="what-the-loop-does-all-night"></a>
+
+## วงรอบทำอะไรตลอดคืน
 
 ```mermaid
 flowchart TD
-    A[Check the finish condition] --> B[Make the smallest justified change]
-    B --> C[Verify against the real artifact]
-    C --> D{Progress?}
-    D -->|Yes| E[Commit]
-    D -->|No| F[Discard]
-    E --> G[Log one decision row]
+    A[ตรวจเกณฑ์งานเสร็จ] --> B[แก้ให้น้อยที่สุดเท่าที่มีเหตุผลรองรับ]
+    B --> C[ตรวจผลงานจริง]
+    C --> D{มีความคืบหน้าหรือไม่?}
+    D -->|มี| E[Commit]
+    D -->|ไม่มี| F[ทิ้งการเปลี่ยนแปลง]
+    E --> G[บันทึกการตัดสินใจหนึ่งแถว]
     F --> G
     G --> A
 ```
 
-One change, one check, one log row, every iteration. Changes that didn't help get discarded, not left to ride. A plateau means pivot, not stop, and the finish condition never quietly relaxes to declare victory.
+ทุกครั้งมีหนึ่งการแก้ หนึ่งการตรวจ และหนึ่งแถวบันทึก การแก้ที่ไม่ช่วยจะถูกทิ้ง เมื่อผลเริ่มนิ่งต้องเปลี่ยนแนวทาง ไม่ใช่หยุด และต้องไม่แอบลดเกณฑ์งานเสร็จเพื่อประกาศว่าสำเร็จ
 
-## The morning audit
+<a id="the-morning-audit"></a>
 
-[`/show-me-your-work`](../../skills/show-me-your-work/SKILL.md) is what makes the run reviewable. Each row records the time, phase, decision, reason, an evidence pointer, and the result, in a TSV at `decisions.tsv` (or `.audit/<task-slug>.tsv` when several runs share a directory). It stays local by default. Commit it when the work is ambitious enough that a reviewer needs the trail to trust the result.
+## ตรวจงานตอนเช้า
 
-When you're back, ask for the run in review form:
+[`/show-me-your-work`](../../skills/show-me-your-work/SKILL.md) ทำให้งานตรวจย้อนกลับได้ แต่ละแถวบันทึกเวลา ระยะงาน การตัดสินใจ เหตุผล ที่อยู่ของหลักฐาน และผลลัพธ์ เป็น TSV ที่ `decisions.tsv` หรือ `.audit/<task-slug>.tsv` เมื่อหลายงานใช้ไดเรกทอรีเดียวกัน ตามค่าเริ่มต้นจะเก็บไว้ในเครื่อง ควร commit เมื่อเป็นงานใหญ่ที่ผู้รีวิวต้องใช้ประวัตินี้เพื่อเชื่อผลลัพธ์
 
-```text
-/show-me-your-work catch me up on what you did last night
-```
-
-Before the skill hands back its summary, it spawns a reviewer on a different model family to read the trail and the transcript, and the reply ends with an Attention section listing what deserves your scrutiny. Read that section first, then the log rows it points at. You're auditing decisions, not re-reading the whole night.
-
-## When the night holds a queue, not a task
-
-The contract above drives one task to one finish condition. Some nights hold more, a queue of independent changes or a whole program. Three playbooks scale the same trust up.
-
-[Autopilot-full](../../skills/poteto-mode/playbooks/autopilot-full.md) runs a queue of independent PRs to merged. Each PR gets one owner agent that carries it from build through merge, and no owner merges on its own verdict. A swarm of fresh verifiers starts a round at the owner's code-ready head and again at every later push that changes the patch. Only a clean verdict on the patch that merges authorizes the merge:
+เมื่อกลับมา ขอผลในรูปแบบพร้อมรีวิว:
 
 ```text
-/poteto-mode full autopilot on this queue. each item is independent. i want them merged by morning.
+/show-me-your-work สรุปให้ผมตามทันว่าคืนที่แล้วทำอะไรไปบ้าง
 ```
 
-[Autopilot-stack](../../skills/poteto-mode/playbooks/autopilot-stack.md) runs the same owner loop but ships nothing. You wake up to one linear base-branch stack with a verifier's verdict on every link, and you review and land it yourself. Pick it over Autopilot-full when the changes are coupled, or when you want your own eyes on the work before anything merges:
+ก่อนส่งสรุป สกิลจะเรียกผู้รีวิวจากโมเดลต่างตระกูลมาอ่านบันทึกและบทสนทนา แล้วปิดท้ายคำตอบด้วยส่วน Attention ที่ระบุจุดควรตรวจเป็นพิเศษ อ่านส่วนนั้นก่อน แล้วดูแถวบันทึกที่อ้างถึง คุณกำลังตรวจการตัดสินใจ ไม่ต้องอ่านทั้งคืนใหม่
+
+<a id="when-the-night-holds-a-queue-not-a-task"></a>
+
+## เมื่อมีคิวงานข้ามคืน ไม่ใช่งานเดียว
+
+ข้อตกลงข้างต้นพาหนึ่งงานไปถึงหนึ่งเกณฑ์งานเสร็จ บางคืนมีคิวการแก้ที่อิสระกันหรือทั้งโครงการ แนวทางสามแบบช่วยขยายวิธีทำงานนี้
+
+[Autopilot-full](../../skills/poteto-mode/playbooks/autopilot-full.md) ทำคิว PR อิสระจน merge แต่ละ PR มีเอเจนต์เจ้าของหนึ่งตัวดูแลตั้งแต่สร้างจนรวมงาน และห้ามเจ้าของ merge ด้วยคำตัดสินของตนเอง ทีมผู้ตรวจใหม่จะเริ่มตรวจที่ commit ซึ่งเจ้าของระบุว่าโค้ดพร้อม และตรวจใหม่ทุกครั้งที่ push แล้ว patch เปลี่ยน อนุญาตให้ merge เฉพาะเมื่อ patch ที่จะรวมได้รับผลตรวจว่าผ่าน:
 
 ```text
-/poteto-mode autopilot these five changes but stack them, don't ship. i'll land the stack in the morning.
+/poteto-mode ใช้ full autopilot กับคิวนี้ แต่ละรายการเป็นอิสระ ผมอยากให้ merge ครบก่อนเช้า
 ```
 
-[Orchestrate](../../skills/poteto-mode/playbooks/orchestrate.md) is for a program that outlives any single agent: multi-day, many stacked PRs, fleets of subagents under one standing coordinator chat. The coordinator authors briefs, collects what its subagents finish, keeps the lowest unmerged PR green, and never writes code itself. It's deliberately heavy machinery. If one agent could finish the work in a session, the playbook itself routes you back to the overnight contract above:
+[Autopilot-stack](../../skills/poteto-mode/playbooks/autopilot-stack.md) ใช้วงรอบเจ้าของงานแบบเดียวกัน แต่ไม่รวมงาน คุณจะตื่นมาพบชุด PR ที่ต่อเป็นเส้นเดียวจาก branch ฐาน พร้อมคำตัดสินของผู้ตรวจทุกจุด แล้วรีวิวและรวมเอง เลือกแบบนี้เมื่อการแก้สัมพันธ์กัน หรืออยากตรวจด้วยตาตัวเองก่อน merge:
 
 ```text
-/poteto-mode orchestrate the store migration. own it until every package is converted and merged. i'll check in twice a day.
+/poteto-mode ทำห้าการเปลี่ยนแปลงนี้แบบ autopilot แต่เรียงเป็นชุด PR ไม่ต้องรวม ผมจะรวมตอนเช้า
 ```
 
-**Pitfall:** a duration is not a finish condition. "work on this for 4 hours" gives the agent nothing to check, and you'll wake up to four hours of motion instead of a result. Give `/loop` a predicate that can pass or fail.
+[Orchestrate](../../skills/poteto-mode/playbooks/orchestrate.md) เหมาะกับโครงการที่ยาวกว่าอายุงานของเอเจนต์ตัวเดียว: หลายวัน หลายชุด PR และเอเจนต์ย่อยจำนวนมากภายใต้แชตผู้ประสานงานหนึ่งตัว ผู้ประสานงานเขียนโจทย์ รวบรวมงานที่เอเจนต์ย่อยทำเสร็จ ดูแล PR ล่างสุดที่ยังไม่ merge ให้ผ่านการตรวจ และไม่เขียนโค้ดเอง เป็นเครื่องมือหนักโดยตั้งใจ หากเอเจนต์เดียวทำเสร็จในเซสชันได้ playbook จะส่งกลับไปใช้ข้อตกลงข้ามคืนด้านบน:
 
-Next: [Steer with principle names](./08-principles.md).
+```text
+/poteto-mode orchestrate การย้ายระบบจัดเก็บ ดูแลจนทุก package ย้ายเสร็จและ merge แล้ว ผมจะเข้ามาดูวันละสองครั้ง
+```
+
+**ข้อควรระวัง:** ระยะเวลาไม่ใช่เกณฑ์งานเสร็จ “ทำงานนี้ 4 ชั่วโมง” ไม่ให้สิ่งที่เอเจนต์ตรวจได้ คุณอาจตื่นมาพบแค่กิจกรรมสี่ชั่วโมงแทนผลลัพธ์ ให้ `/loop` มีเงื่อนไขที่ตัดสินได้ว่าผ่านหรือไม่ผ่าน
+
+ถัดไป: [ชี้ทิศทางด้วยชื่อหลักการ](./08-principles.md)

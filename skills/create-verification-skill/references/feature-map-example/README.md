@@ -1,47 +1,59 @@
-# Notes verification map
+<a id="notes-verification-map"></a>
 
-This directory is the maintained source for verifying the user-facing behavior of Notes. Read the index before driving the app, then use the matching feature file as the recipe.
+# แผนที่ตรวจสอบ Notes
 
-## Baseline preconditions
+ไดเรกทอรีนี้เป็นแหล่งข้อมูลที่ดูแลให้ทันสมัยสำหรับตรวจพฤติกรรมของ Notes ที่ผู้ใช้เห็น อ่านสารบัญก่อนควบคุมแอป แล้วใช้ไฟล์ฟีเจอร์ที่ตรงกันเป็นขั้นตอน
 
-- Launch Notes at `http://127.0.0.1:4173` with a disposable data directory.
-- Set `NOTES_DATA_DIR=/tmp/notes-verify-$RUN_ID` so concurrent runs do not share state.
-- Seed notes titled `Quarterly plan` and `Grocery list`.
-- Put `control-notes` and the `notes` CLI on `PATH`.
-- Run `control-notes doctor` and require the expected URL, data directory, and build revision.
-- Never drive an instance that was not started by this verification run.
+<a id="baseline-preconditions"></a>
 
-## Driving conventions
+## เงื่อนไขพื้นฐานก่อนเริ่ม
 
-- Start every recipe from the baseline state unless its preconditions say otherwise.
-- Prefer ARIA roles and accessible names over CSS selectors or DOM position.
-- Treat every command as literal. Keep quoted names and flags unchanged.
-- Run browser actions through `control-notes browser`.
-- Run terminal actions through `control-notes cli -- <command>`.
-- Restore seeded data after a mutation. Do not remove proof artifacts during cleanup.
+- เปิด Notes ที่ `http://127.0.0.1:4173` ด้วยไดเรกทอรีข้อมูลที่ใช้ชั่วคราวแล้วทิ้งได้
+- ตั้ง `NOTES_DATA_DIR=/tmp/notes-verify-$RUN_ID` เพื่อไม่ให้การรันพร้อมกันใช้สถานะร่วมกัน
+- สร้างข้อมูลเริ่มต้นเป็นโน้ตชื่อ `Quarterly plan` และ `Grocery list`
+- ให้ `control-notes` และ CLI `notes` อยู่ใน `PATH`
+- รัน `control-notes doctor` และตรวจว่ามี URL ไดเรกทอรีข้อมูล และ revision ของ build ตรงตามที่คาด
+- ห้ามควบคุมอินสแตนซ์ที่ไม่ได้เริ่มโดยการตรวจรอบนี้
 
-## Proof and skip reporting
+<a id="driving-conventions"></a>
 
-- Capture the user action and the resulting state, not only the final screen.
-- UI proof includes an ARIA snapshot and a screenshot with the app identity visible.
-- CLI proof includes the command, stdout, stderr, and exit code.
-- Mutation proof includes a read-only second view of the stored value.
-- Record the feature ID and entry point used with every artifact.
-- Report an unreachable path with the attempted command and the unmet precondition.
-- Do not report a skipped entry point as verified through a different path.
+## แนวปฏิบัติในการควบคุมแอป
 
-## Feature entry contract
+- เริ่มทุกชุดขั้นตอนจากสถานะพื้นฐาน เว้นแต่เงื่อนไขของขั้นตอนระบุอย่างอื่น
+- ใช้ ARIA role และชื่อที่เทคโนโลยีช่วยการเข้าถึงอ่านได้ ก่อนใช้ CSS selector หรือตำแหน่ง DOM
+- ใช้คำสั่งตามที่ระบุทุกตัวอักษร อย่าเปลี่ยนชื่อในเครื่องหมายคำพูดหรือ flag
+- ทำงานผ่านเบราว์เซอร์ด้วย `control-notes browser`
+- ทำงานผ่านเทอร์มินัลด้วย `control-notes cli -- <command>`
+- คืนข้อมูลเริ่มต้นหลังการแก้ข้อมูล อย่าลบไฟล์หลักฐานระหว่างเก็บกวาด
 
-Each feature file starts with an H1 title and one paragraph describing the user-visible behavior. It then uses exactly four H2 sections in this order.
+<a id="proof-and-skip-reporting"></a>
 
-1. `Sub-features` lists short IDs with one line for each behavior.
-2. `How to get to it (user POV)` lists every user entry point.
-3. `Driving it with <harness>` starts with `Preconditions:` and uses labeled bullets that pair each user action with an exact command and observable result.
-4. `Gotchas` lists traps that can waste or invalidate a verification run.
+## หลักฐานและรายงานการข้ามขั้นตอน
 
-Keep implementation details out of the map. Name only user paths, stable handles, required state, commands, and observable proof.
+- เก็บทั้งการกระทำของผู้ใช้และสถานะที่เกิดขึ้น ไม่ใช่เฉพาะหน้าจอสุดท้าย
+- หลักฐาน UI ต้องมี ARIA snapshot และภาพหน้าจอที่เห็นว่าเป็นแอปใด
+- หลักฐาน CLI ต้องมีคำสั่ง stdout, stderr และ exit code
+- หลักฐานการแก้ข้อมูลต้องมีการอ่านค่าที่จัดเก็บจากอีกมุมมองหนึ่งแบบอ่านอย่างเดียว
+- บันทึก ID ฟีเจอร์และจุดเริ่มใช้งานที่ใช้ไว้กับหลักฐานทุกชิ้น
+- ถ้าเข้าเส้นทางไม่ได้ ให้รายงานคำสั่งที่ลองและเงื่อนไขที่ยังไม่ครบ
+- อย่ารายงานจุดเริ่มใช้งานที่ข้ามไปว่าตรวจผ่านแล้วเพราะลองผ่านอีกเส้นทาง
 
-## Features
+<a id="feature-entry-contract"></a>
 
-- [Create a note](./create-note.md) covers browser and CLI creation, cancellation, persistence, and cleanup.
-- [Search notes](./search.md) covers toolbar, keyboard, and CLI search with matching, empty, and clear states.
+## ข้อกำหนดของไฟล์ฟีเจอร์
+
+แต่ละไฟล์เริ่มด้วยหัวข้อ H1 และหนึ่งย่อหน้าอธิบายพฤติกรรมที่ผู้ใช้เห็น จากนั้นมี H2 สี่ส่วนตามลำดับนี้เท่านั้น
+
+1. `Sub-features` (ฟีเจอร์ย่อย) ระบุ ID สั้น ๆ และคำอธิบายหนึ่งบรรทัดต่อพฤติกรรม
+2. `How to get to it (user POV)` (วิธีเข้าถึงจากมุมผู้ใช้) ระบุทุกจุดเริ่มใช้งาน
+3. `Driving it with <harness>` (ควบคุมด้วยชุดเครื่องมือที่ระบุ) เริ่มด้วย `Preconditions:` และใช้รายการที่มีป้ายกำกับ จับคู่การกระทำของผู้ใช้กับคำสั่งตรงตัวและผลที่สังเกตได้
+4. `Gotchas` (จุดที่ควรระวัง) ระบุกับดักที่ทำให้เสียเวลาหรือทำให้ผลตรวจใช้ไม่ได้
+
+อย่าใส่รายละเอียดการเขียนโค้ดภายในลงในแผนที่ ระบุเฉพาะเส้นทางของผู้ใช้ ตัวระบุที่คงที่ สถานะที่ต้องมี คำสั่ง และหลักฐานที่สังเกตได้
+
+<a id="features"></a>
+
+## ฟีเจอร์
+
+- [สร้างโน้ต](./create-note.md) ครอบคลุมการสร้างผ่านเบราว์เซอร์และ CLI การยกเลิก การคงอยู่ของข้อมูล และการเก็บกวาด
+- [ค้นหาโน้ต](./search.md) ครอบคลุมการค้นหาผ่านแถบเครื่องมือ แป้นพิมพ์ และ CLI ทั้งกรณีพบข้อมูล ไม่พบข้อมูล และล้างการค้นหา

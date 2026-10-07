@@ -1,14 +1,18 @@
+<a id="benny"></a>
+
 # benny
 
-benny gives you two cursor automations for slack issue reports. one triages each report. the other reproduces confirmed bugs and may prepare a small draft fix.
+benny มีระบบอัตโนมัติใน Cursor สองแบบสำหรับรายงานปัญหาจาก Slack แบบแรกคัดกรองแต่ละรายงาน อีกแบบทำให้บั๊กที่ยืนยันแล้วเกิดซ้ำ และอาจเตรียมร่างการแก้ขนาดเล็ก
 
-the files in this directory are dormant setup and automation sources. they do not appear as slash skills.
+ไฟล์ในไดเรกทอรีนี้เป็นต้นฉบับสำหรับการตั้งค่าและระบบอัตโนมัติที่ยังไม่เปิดใช้งาน ไม่แสดงเป็นสกิลที่เรียกด้วย slash
 
-## set it up
+<a id="set-it-up"></a>
 
-1. point cursor at [`FOR_AGENTS.md`](./FOR_AGENTS.md) and name the target repository.
-2. let setup merge this whole directory into the target at `.cursor/automations/benny/`. it must preserve destination-only files and review conflicts instead of overwriting local edits.
-3. let setup enable pstack in the target repository's `.cursor/settings.json` for shared dependencies:
+## ตั้งค่า
+
+1. ให้ Cursor อ่าน [`FOR_AGENTS.md`](./FOR_AGENTS.md) และระบุ repository เป้าหมาย
+2. ให้ระบบตั้งค่ารวมไดเรกทอรีนี้ทั้งหมดเข้าที่ `.cursor/automations/benny/` ในปลายทาง ต้องเก็บไฟล์ที่มีเฉพาะปลายทางไว้ และตรวจความขัดแย้งแทนการเขียนทับสิ่งที่แก้ในเครื่อง
+3. ให้ระบบเปิด pstack ใน `.cursor/settings.json` ของ repository เป้าหมาย เพื่อใช้สกิลที่ต้องพึ่งพาร่วมกัน:
 
 ```json
 {
@@ -18,6 +22,6 @@ the files in this directory are dormant setup and automation sources. they do no
 }
 ```
 
-4. keep user-owned configuration outside the copied pack, for example in `.cursor/benny/`. adapt [`configuration.example.yaml`](./templates/configuration.example.yaml) and [`feature-map.example.md`](./skills/reproduce-and-fix-issues/references/feature-map.example.md).
-5. commit `.cursor/settings.json`, `.cursor/automations/benny/`, and any secret-free configuration before enabling either automation.
-6. review each new automation draft or update existing automations in their editors. then send a harmless test report and verify every source-channel post stays in the original thread.
+4. เก็บการตั้งค่าของผู้ใช้ไว้นอกแพ็กที่คัดลอก เช่น `.cursor/benny/` ปรับจาก [`configuration.example.yaml`](./templates/configuration.example.yaml) และ [`feature-map.example.md`](./skills/reproduce-and-fix-issues/references/feature-map.example.md)
+5. commit `.cursor/settings.json`, `.cursor/automations/benny/` และการตั้งค่าที่ไม่มีข้อมูลลับ ก่อนเปิดระบบอัตโนมัติทั้งสองแบบ
+6. ตรวจร่างระบบอัตโนมัติใหม่แต่ละรายการ หรือแก้รายการเดิมในหน้าต่างแก้ไขของมัน จากนั้นส่งรายงานทดสอบที่ไม่ก่อผลเสีย และตรวจว่าทุกโพสต์กลับไปยังช่องทางต้นทางอยู่ในบทสนทนาเดิม

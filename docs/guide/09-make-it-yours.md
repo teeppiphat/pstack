@@ -1,67 +1,79 @@
-# Make it yours
+<a id="make-it-yours"></a>
 
-poteto-mode is one person's style. The machinery underneath, playbooks, routing, model roles, works just as well wearing yours. This page covers generating a personal mode, capturing lessons from a session, authoring a focused skill, and testing a skill change before you trust it.
+# ปรับให้เป็นสไตล์ของคุณ
 
-## Generate your own mode with `/automate-me`
+poteto-mode เป็นสไตล์ของคนคนหนึ่ง แต่กลไกเบื้องหลัง ทั้ง playbook การเลือกเส้นทาง และบทบาทโมเดล ใช้กับสไตล์ของคุณได้เช่นกัน หน้านี้ครอบคลุมการสร้างโหมดส่วนตัว เก็บบทเรียนจากเซสชัน เขียนสกิลเฉพาะงาน และทดสอบการแก้สกิลก่อนเชื่อผล
+
+<a id="generate-your-own-mode-with-automate-me"></a>
+
+## สร้างโหมดของคุณด้วย `/automate-me`
 
 ```text
 /automate-me
 ```
 
-You don't describe your style, because [`/automate-me`](../../skills/automate-me/SKILL.md) reads it out of your history. It mines your recent transcripts in the active workspace for repeated preferences, in how you like replies, delegation, verification, code, prose, and process, then asks you which patterns are really you. It drafts `.cursor/skills/<your-name>-mode/SKILL.md` through Cursor's built-in `create-skill` flow, runs the draft through [`/unslop`](../../skills/unslop/SKILL.md), and opens a PR from a worktree so you review it like any other change.
+ไม่ต้องอธิบายสไตล์ตัวเอง เพราะ [`/automate-me`](../../skills/automate-me/SKILL.md) อ่านจากประวัติของคุณ จะค้นบทสนทนาล่าสุดใน workspace ปัจจุบันเพื่อหาความชอบที่เกิดซ้ำ ทั้งรูปแบบคำตอบ การมอบหมายงาน การตรวจสอบ โค้ด ข้อความ และกระบวนการ แล้วถามว่ารูปแบบไหนเป็นตัวคุณจริง ๆ จากนั้นร่าง `.cursor/skills/<your-name>-mode/SKILL.md` ผ่านกระบวนการ `create-skill` ในตัวของ Cursor ใช้ [`/unslop`](../../skills/unslop/SKILL.md) เก็บข้อความ แล้วเปิด PR จาก worktree ให้คุณรีวิวเหมือนการเปลี่ยนแปลงทั่วไป
 
-Run it again whenever your habits drift:
-
-```text
-/automate-me update my mode skill with everything since its last edit
-```
-
-Update mode mines only the history since the skill last changed. It keeps rules you haven't contradicted, revises the ones with new evidence, and adds sections only for genuinely new patterns.
-
-## Capture a session's lessons with `/reflect`
-
-Right after a task that taught you something, run:
+เรียกใหม่ได้เมื่อนิสัยการทำงานเปลี่ยน:
 
 ```text
-/reflect that took way too long. capture what we learned so the next run doesn't repeat it.
+/automate-me อัปเดตสกิลโหมดของผมจากทุกอย่างที่เกิดขึ้นหลังแก้ครั้งล่าสุด
 ```
 
-[`/reflect`](../../skills/reflect/SKILL.md) sends the transcript to three parallel reviewers, then a synthesizer sorts the proposals into `Accepted`, `Rejected`, and `Backlog` and waits for your approval before any skill changes. Approve a proposal only if it would change a future decision. One weird session is an anecdote, not a rule.
+โหมดอัปเดตค้นเฉพาะประวัติหลังสกิลเปลี่ยนล่าสุด เก็บกฎที่คุณยังไม่แสดงความเห็นขัดแย้ง ปรับกฎที่มีหลักฐานใหม่ และเพิ่มหัวข้อเฉพาะรูปแบบใหม่จริง ๆ
 
-## Author a focused skill
+<a id="capture-a-sessions-lessons-with-reflect"></a>
 
-When you already know the workflow you want to capture:
+## เก็บบทเรียนจากเซสชันด้วย `/reflect`
+
+หลังงานที่ให้บทเรียนใหม่ ให้เรียกทันที:
 
 ```text
-/poteto-mode write a skill for verifying database migrations in this repo
+/reflect งานนั้นใช้เวลานานเกินไป เก็บสิ่งที่เรียนรู้เพื่อไม่ให้รอบหน้าทำซ้ำ
 ```
 
-Writing a skill matches the [Authoring or modifying a skill playbook](../../skills/poteto-mode/playbooks/authoring-a-skill.md), which routes through Cursor's built-in `create-skill`, validates the frontmatter and links, and ships the result through the Opening a PR playbook. Agent-facing prose has a higher bar than human prose, because an unhelpful sentence becomes an instruction some future agent follows. Let the playbook hold that bar rather than writing a `SKILL.md` freehand.
+[`/reflect`](../../skills/reflect/SKILL.md) ส่งบทสนทนาให้ผู้รีวิวสามตัวพร้อมกัน จากนั้นผู้สังเคราะห์จัดข้อเสนอเป็น `Accepted` (รับ), `Rejected` (ไม่รับ) และ `Backlog` (เก็บไว้ทำภายหลัง) แล้วรอคุณอนุมัติก่อนแก้สกิล อนุมัติเฉพาะข้อเสนอที่จะเปลี่ยนการตัดสินใจในอนาคต เซสชันแปลกเพียงครั้งเดียวเป็นแค่เหตุการณ์ ไม่ใช่กฎ
 
-One special case has its own generator. A skill that must drive your app and prove behavior is a verification skill, so use [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md) and [`/maintain-verification-skill`](../../skills/maintain-verification-skill/SKILL.md) instead. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers both.
+<a id="author-a-focused-skill"></a>
 
-## Write docs to a standard with `/technical-writing`
+## เขียนสกิลเฉพาะงาน
 
-Skills aren't the only prose you ship. For docs, RFCs, readmes, PR descriptions, and commit messages:
+เมื่อรู้แล้วว่าอยากบันทึก workflow แบบไหน:
 
 ```text
-/technical-writing review the readme changes
+/poteto-mode เขียนสกิลตรวจสอบการย้ายฐานข้อมูลใน repo นี้
 ```
 
-[`/technical-writing`](../../skills/technical-writing/SKILL.md) applies a layered standard with one goal, prose a tired engineer understands on the first read. It picks the document's mode first (tutorial, how-to, reference, or explanation), then works sentence by sentence: who does what, one thought per sentence, nothing readable two ways. Use it to review what you or an agent just wrote, or name it up front when you ask for a doc.
+การเขียนสกิลตรงกับ [แนวทางเขียนหรือแก้สกิล](../../skills/poteto-mode/playbooks/authoring-a-skill.md) ซึ่งผ่าน `create-skill` ในตัวของ Cursor ตรวจ frontmatter และลิงก์ แล้วส่งงานผ่านแนวทางเปิด PR ข้อความสำหรับเอเจนต์ต้องมีมาตรฐานสูงกว่าข้อความสำหรับคน เพราะประโยคที่ไม่ช่วยอาจกลายเป็นคำสั่งให้เอเจนต์ในอนาคตทำตาม ให้ playbook ดูแลมาตรฐานนี้แทนการเขียน `SKILL.md` เองแบบไม่มีขั้นตอน
 
-## Test a skill change blind
+กรณีพิเศษหนึ่งมีตัวสร้างเฉพาะ: สกิลที่ต้องควบคุมแอปและพิสูจน์พฤติกรรมคือสกิลตรวจสอบ ให้ใช้ [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md) และ [`/maintain-verification-skill`](../../skills/maintain-verification-skill/SKILL.md) แทน หน้า [ตรวจสอบและส่งงาน](./06-verify-and-ship.md#create-a-project-verification-skill) อธิบายทั้งสองตัว
 
-A skill edit affects every future session, so test it like the experiment it is:
+<a id="write-docs-to-a-standard-with-technical-writing"></a>
+
+## เขียนเอกสารตามมาตรฐานด้วย `/technical-writing`
+
+สกิลไม่ใช่ข้อความชนิดเดียวที่คุณส่ง สำหรับเอกสาร RFC, README, คำอธิบาย PR และข้อความ commit:
 
 ```text
-/poteto-mode run the eval playbook on this skill change. same task for both variants, candidates stay blind.
+/technical-writing รีวิวส่วนที่แก้ใน readme
 ```
 
-The [Eval playbook](../../skills/poteto-mode/playbooks/eval.md) is built around one failure mode, the observer effect. An agent that knows it's being evaluated behaves differently. So candidate agents get an organic-looking task in sanitized directories, never the words "eval" or "candidate", and never each other's existence. One judge scores all outputs under neutral labels, and chain-following gets graded from which files each candidate actually read, not from what it claims.
+[`/technical-writing`](../../skills/technical-writing/SKILL.md) ใช้มาตรฐานหลายชั้นโดยมีเป้าหมายเดียว: วิศวกรที่เหนื่อยอยู่ต้องเข้าใจได้ในการอ่านครั้งแรก เริ่มจากเลือกรูปแบบเอกสาร (บทเรียน วิธีทำ ข้อมูลอ้างอิง หรือคำอธิบาย) แล้วตรวจทีละประโยคว่าใครทำอะไร มีความคิดเดียวต่อประโยค และไม่มีความหมายกำกวม ใช้รีวิวสิ่งที่คุณหรือเอเจนต์เพิ่งเขียน หรือระบุชื่อสกิลตั้งแต่ขอเอกสารได้
 
-Read every output yourself before accepting the verdict. If you disagree with the judge, suspect the rubric before you suspect your judgment.
+<a id="test-a-skill-change-blind"></a>
 
-**Pitfall:** don't edit a skill mid-task because it's misbehaving. Fix it in its own PR and keep the task moving. A skill edit that ships tangled into feature work is invisible to review and impossible to evaluate.
+## ทดสอบการแก้สกิลแบบไม่เปิดเผยเงื่อนไข
 
-Next: [Recipes and pitfalls](./10-recipes-and-pitfalls.md).
+การแก้สกิลมีผลกับทุกเซสชันในอนาคต จึงควรทดสอบแบบการทดลอง:
+
+```text
+/poteto-mode ใช้ eval playbook กับการแก้สกิลนี้ ให้ทั้งสองแบบทำงานเดียวกัน และไม่ให้เอเจนต์รู้เงื่อนไขการประเมิน
+```
+
+[แนวทาง Eval](../../skills/poteto-mode/playbooks/eval.md) ออกแบบเพื่อรับมือผลจากการรู้ว่าถูกสังเกต เอเจนต์ที่รู้ว่ากำลังถูกประเมินจะทำงานต่างไป จึงให้โจทย์ที่ดูเหมือนงานจริงในไดเรกทอรีที่ตัดข้อมูลเปิดเผยเงื่อนไขออก ไม่บอกคำว่า “eval” หรือ “candidate” และไม่บอกว่ามีเอเจนต์อื่น ผู้ตัดสินหนึ่งตัวให้คะแนนผลงานภายใต้ชื่อกลาง ๆ และประเมินการทำตามลำดับจากไฟล์ที่อ่านจริง แทนคำกล่าวอ้าง
+
+อ่านผลงานทุกชิ้นเองก่อนรับคำตัดสิน หากไม่เห็นด้วย ให้สงสัยเกณฑ์ให้คะแนนก่อนสงสัยวิจารณญาณตัวเอง
+
+**ข้อควรระวัง:** อย่าแก้สกิลกลางงานเพราะมันทำงานไม่ดี ให้แยกแก้ใน PR ของตัวเองและเดินหน้างานเดิม การแก้สกิลที่ปนกับงานฟีเจอร์จะรีวิวไม่เห็นและประเมินไม่ได้
+
+ถัดไป: [สูตรคำสั่งและข้อควรระวัง](./10-recipes-and-pitfalls.md)

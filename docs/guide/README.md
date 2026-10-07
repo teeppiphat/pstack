@@ -1,30 +1,34 @@
-# The pstack guide
+<a id="the-pstack-guide"></a>
 
-pstack works best when you stop micromanaging the agent. You describe what you want and how you'll know it's done. `/poteto-mode` picks the playbook, runs the other skills as the steps need them, and shows you the evidence. This guide teaches that habit with realistic prompts.
+# คู่มือ pstack
 
-Here's what you'll learn:
+pstack ทำงานได้ดีที่สุดเมื่อคุณไม่กำกับเอเจนต์ทุกขั้น บอกสิ่งที่ต้องการและจะรู้ได้อย่างไรว่าเสร็จ `/poteto-mode` จะเลือกแนวทาง เรียกสกิลตามขั้นตอน และแสดงหลักฐาน คู่มือนี้สอนวิธีทำงานดังกล่าวผ่านคำขอที่ใช้ได้จริง
 
-1. [Set up pstack](./01-setup.md). Install the plugin and pick your models.
-2. [Route work through `/poteto-mode`](./02-poteto-mode.md). Give it a goal and watch it pick a playbook.
-3. [Understand the code](./03-understand.md). `/how`, `/why`, `/teach`, and `/recall` before you edit anything.
-4. [Design the change](./04-design.md). `/architect`, `/arena`, `/swarm`, and `/interrogate` before code locks in a shape.
-5. [Build and clean the change](./05-build-and-clean.md). The build playbooks, `/tdd`, `/unslop`, and `/no-comments`.
-6. [Verify and ship](./06-verify-and-ship.md). Prove behavior on the real app, then open a focused PR and drive it to merged.
-7. [Run work while you sleep](./07-overnight.md). An overnight contract, a decision log you can audit, and the playbooks that scale past one agent.
-8. [Steer with principle names](./08-principles.md). The 24 names that redirect an agent mid-task.
-9. [Make it yours](./09-make-it-yours.md). Your own mode, plus how to test a skill change.
-10. [Recipes and pitfalls](./10-recipes-and-pitfalls.md). Prompts to copy and mistakes to skip.
+สิ่งที่จะได้เรียนรู้:
 
-Read the pages in order the first time. After that, each page stands alone.
+1. [ตั้งค่า pstack](./01-setup.md) ติดตั้งปลั๊กอินและเลือกโมเดล
+2. [ส่งงานผ่าน `/poteto-mode`](./02-poteto-mode.md) บอกเป้าหมายแล้วดูระบบเลือกแนวทาง
+3. [ทำความเข้าใจโค้ด](./03-understand.md) ใช้ `/how`, `/why`, `/teach` และ `/recall` ก่อนแก้ไข
+4. [ออกแบบการเปลี่ยนแปลง](./04-design.md) ใช้ `/architect`, `/arena`, `/swarm` และ `/interrogate` ก่อนยึดติดกับโค้ด
+5. [ลงมือสร้างและเก็บงานให้เรียบร้อย](./05-build-and-clean.md) แนวทางสร้างงาน พร้อม `/tdd`, `/unslop` และ `/no-comments`
+6. [ตรวจสอบและส่งงาน](./06-verify-and-ship.md) พิสูจน์พฤติกรรมในแอปจริง เปิด PR ที่มีขอบเขตชัด แล้วดูแลจน merge
+7. [ปล่อยให้ทำงานระหว่างที่คุณนอน](./07-overnight.md) ข้อตกลงข้ามคืน บันทึกการตัดสินใจที่ตรวจได้ และแนวทางขยายงาน
+8. [ชี้ทิศทางด้วยชื่อหลักการ](./08-principles.md) ใช้ชื่อ 24 ข้อเพื่อปรับทิศทางเอเจนต์ระหว่างงาน
+9. [ปรับให้เป็นสไตล์ของคุณ](./09-make-it-yours.md) สร้างโหมดส่วนตัวและทดสอบการเปลี่ยนสกิล
+10. [สูตรคำสั่งและข้อควรระวัง](./10-recipes-and-pitfalls.md) ตัวอย่างที่นำไปใช้ได้และข้อผิดพลาดที่ควรหลีกเลี่ยง
 
-## If you only remember one thing
+ครั้งแรกให้อ่านตามลำดับ หลังจากนั้นแต่ละหน้าสามารถอ่านแยกได้
 
-Give the agent a goal and a way to check it, in your own words:
+<a id="if-you-only-remember-one-thing"></a>
+
+## ถ้าจะจำเพียงเรื่องเดียว
+
+บอกเป้าหมายและวิธีตรวจด้วยภาษาของคุณเอง:
 
 ```text
-/poteto-mode the export writes duplicate rows when a retry lands mid-run. repro first, then fix and verify.
+/poteto-mode การ export เขียนแถวซ้ำเมื่อมีการลองใหม่กลางงาน ทำให้ปัญหาเกิดซ้ำก่อน แล้วแก้และตรวจสอบ
 ```
 
-You don't need to name a playbook or list skills. "repro first" and a checkable outcome are all the routing signal `/poteto-mode` needs. It matches the Bug fix playbook, copies the steps into a todo list, and calls the right skills as each step fires.
+ไม่ต้องบอกชื่อ playbook หรือเรียงสกิล “ทำให้ปัญหาเกิดซ้ำก่อน” และผลลัพธ์ที่ตรวจได้ก็เพียงพอ `/poteto-mode` จะเลือกแนวทาง Bug fix คัดลอกขั้นตอนลงรายการงาน และเรียกสกิลที่ตรงกับแต่ละขั้น
 
-Next: [Set up pstack](./01-setup.md).
+ถัดไป: [ตั้งค่า pstack](./01-setup.md)

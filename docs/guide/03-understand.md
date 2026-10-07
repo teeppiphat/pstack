@@ -1,53 +1,65 @@
-# Understand the code before changing it
+<a id="understand-the-code-before-changing-it"></a>
 
-Editing code you don't understand is how subtle regressions ship. pstack gives you four ways in. `/how` explains what the code does now. `/why` digs up the reasons it's shaped that way. `/teach` blends both into one explanation. `/recall` rebuilds your own recent context on a topic.
+# ทำความเข้าใจโค้ดก่อนแก้ไข
 
-![A detective studies a machine blueprint with a magnifying glass while robots fetch case files; the evidence board behind her links clues under /how and /why.](./images/understanding.jpg)
+การแก้โค้ดที่ไม่เข้าใจอาจปล่อยบั๊กแฝงที่ทำให้ของเดิมเสีย pstack มีสี่วิธีช่วยคุณเริ่ม `/how` อธิบายว่าโค้ดทำอะไรอยู่ `/why` ค้นเหตุผลที่ออกแบบไว้แบบนั้น `/teach` รวมทั้งสองเป็นคำอธิบายเดียว และ `/recall` รวบรวมบริบทล่าสุดของคุณในเรื่องนั้นกลับมา
 
-## Trace behavior with `/how`
+![นักสืบใช้แว่นขยายอ่านแบบเครื่องจักร ขณะที่หุ่นยนต์นำแฟ้มคดีมาให้ กระดานหลักฐานด้านหลังเชื่อมเบาะแสใต้ /how และ /why](./images/understanding.jpg)
 
-```text
-/how do we dedupe notifications? is there an n+1 when we look up subscribers?
-```
+<a id="trace-behavior-with-how"></a>
 
-Ask the question you actually have. [`/how`](../../skills/how/SKILL.md) reads the code and answers at the level of a senior engineer onboarding you onto the subsystem, with the runtime flow, the key types, and the non-obvious parts. For a big subsystem it fans out two to four read-only explorers first. For a narrow question it just reads and explains.
-
-## Dig up history with `/why`
+## ไล่พฤติกรรมด้วย `/how`
 
 ```text
-/why was the retry limit set to five? does the reason still hold?
+/how เราป้องกันการแจ้งเตือนซ้ำอย่างไร? ตอนค้นหาผู้ติดตามมีปัญหา n+1 หรือไม่?
 ```
 
-[`/why`](../../skills/why/SKILL.md) works like a detective on a cold case. It starts from source control, then queries whatever evidence categories your MCPs expose, such as the issue tracker, long-form docs, team chat, observability, error tracking, and analytics, all in parallel. The report cites everything, separates direct evidence from inference, and says "appears to" when the record is thin. A null result gets reported too, because "nobody wrote down why" is itself an answer.
+ถามสิ่งที่คุณอยากรู้จริง ๆ [`/how`](../../skills/how/SKILL.md) อ่านโค้ดและอธิบายเหมือนวิศวกรอาวุโสพาคุณทำความรู้จักระบบย่อย โดยครอบคลุมลำดับการทำงาน ชนิดข้อมูลสำคัญ และส่วนที่มองไม่ออกทันที ถ้าระบบย่อยใหญ่ จะให้เอเจนต์สำรวจแบบอ่านอย่างเดียวสองถึงสี่ตัวช่วยก่อน ถ้าคำถามแคบ ก็อ่านแล้วอธิบายโดยตรง
 
-The two compose naturally. `do why first then how` is a perfectly good prompt when you suspect the history explains the mess.
+<a id="dig-up-history-with-why"></a>
 
-## Actually understand it with `/teach`
+## ค้นประวัติด้วย `/why`
 
 ```text
-/teach me how this PR changes retries. convince me it fixes the cause and not the symptom.
+/why ทำไมกำหนดจำนวนครั้งที่ลองใหม่ไว้ที่ห้า? เหตุผลนั้นยังใช้ได้อยู่ไหม?
 ```
 
-[`/teach`](../../skills/teach/SKILL.md) is for when a summary isn't enough. It runs `/how` and `/why`, for a small change maybe just one of them, and weaves the findings into a plain explanation that builds up diagram by diagram. The "convince me" framing is worth stealing. It turns the explanation into an argument you can poke at instead of a tour.
+[`/why`](../../skills/why/SKILL.md) ทำงานเหมือนนักสืบรื้อคดีเก่า เริ่มจากประวัติ source control แล้วค้นแหล่งหลักฐานที่ MCP ของคุณเข้าถึงได้พร้อมกัน เช่น ระบบติดตามงาน เอกสารยาว แชตทีม ข้อมูลเฝ้าระวังระบบ บันทึกข้อผิดพลาด และข้อมูลวิเคราะห์ รายงานจะอ้างอิงแหล่งข้อมูล แยกหลักฐานตรงจากข้ออนุมาน และใช้คำว่า “ดูเหมือนว่า” เมื่อข้อมูลมีน้อย หากค้นไม่พบก็รายงาน เพราะ “ไม่มีใครบันทึกเหตุผลไว้” ก็เป็นคำตอบเช่นกัน
 
-## Rebuild your own context with `/recall`
+สองสกิลนี้ใช้ร่วมกันได้เป็นธรรมชาติ `ทำ why ก่อน แล้วค่อย how` เป็นคำขอที่ดีเมื่อสงสัยว่าประวัติจะช่วยอธิบายความยุ่งเหยิงปัจจุบัน
+
+<a id="actually-understand-it-with-teach"></a>
+
+## เข้าใจให้ถึงแก่นด้วย `/teach`
 
 ```text
-/recall catch me up on the export work from last week
+/teach อธิบายว่า PR นี้เปลี่ยนการลองใหม่อย่างไร ให้ผมเชื่อได้ว่าแก้สาเหตุ ไม่ใช่แค่อาการ
 ```
 
-[`/recall`](../../skills/recall/SKILL.md) mines your own recent chats plus the shared record (issues, prior fixes, errors still firing) and hands back a brief on where things stand and what's next. Use it when you're returning to a topic cold. If you want to resume one specific chat, that's the Session pickup playbook below, not `/recall`.
+[`/teach`](../../skills/teach/SKILL.md) เหมาะเมื่อสรุปสั้น ๆ ยังไม่พอ จะเรียก `/how` และ `/why` หรืออาจเรียกเพียงตัวเดียวสำหรับการแก้เล็ก ๆ แล้วเรียบเรียงผลเป็นคำอธิบายง่าย ๆ ที่ต่อยอดทีละแผนภาพ ลองใช้คำว่า “ให้ผมเชื่อได้” เพราะช่วยเปลี่ยนคำอธิบายให้เป็นเหตุผลที่คุณตรวจสอบและโต้แย้งได้ แทนการพาชมเฉย ๆ
 
-## Take over prior work with Session pickup
+<a id="rebuild-your-own-context-with-recall"></a>
 
-When another agent (or you, last week) left a branch mid-flight:
+## รวบรวมบริบทของตัวเองกลับมาด้วย `/recall`
 
 ```text
-/poteto-mode take over this branch. read the decision log, figure out what's done, and continue from there. don't redo finished work.
+/recall สรุปงาน export จากสัปดาห์ที่แล้วให้ผมตามทัน
 ```
 
-The [Session pickup playbook](../../skills/poteto-mode/playbooks/session-pickup.md) treats the prior trail as authoritative. It reconstructs the branch state and decisions, names the resume point, and verifies inherited claims against the original goal instead of re-deriving everything from scratch.
+[`/recall`](../../skills/recall/SKILL.md) ค้นแชตล่าสุดของคุณและข้อมูลร่วม เช่น issue การแก้ก่อนหน้า และข้อผิดพลาดที่ยังเกิด แล้วสรุปสถานะปัจจุบันกับสิ่งที่ต้องทำต่อ ใช้เมื่อกลับมาทำเรื่องที่ไม่ได้จับสักพัก หากต้องการต่อแชตใดโดยเฉพาะ ให้ใช้แนวทาง Session pickup ด้านล่างแทน `/recall`
 
-**Pitfall:** don't skip this page's skills because "the agent will read the code anyway." An agent that starts editing without a traced model tends to fix the symptom at the first plausible spot. `/how` first is cheaper than the second bug.
+<a id="take-over-prior-work-with-session-pickup"></a>
 
-Next: [Design the change](./04-design.md).
+## รับช่วงงานเดิมด้วย Session pickup
+
+เมื่อเอเจนต์อีกตัว หรือคุณเองเมื่อสัปดาห์ก่อน ทิ้ง branch ที่ยังทำไม่เสร็จไว้:
+
+```text
+/poteto-mode รับช่วง branch นี้ อ่านบันทึกการตัดสินใจ ดูว่าทำอะไรเสร็จแล้ว และทำต่อจากจุดนั้น อย่าทำซ้ำส่วนที่เสร็จแล้ว
+```
+
+[แนวทาง Session pickup](../../skills/poteto-mode/playbooks/session-pickup.md) ใช้หลักฐานจากงานก่อนเป็นข้อมูลหลัก สร้างภาพสถานะ branch และการตัดสินใจ ระบุจุดที่จะทำต่อ และตรวจคำกล่าวอ้างเดิมเทียบกับเป้าหมายต้นฉบับ แทนการเริ่มวิเคราะห์ทุกอย่างใหม่
+
+**ข้อควรระวัง:** อย่าข้ามสกิลในหน้านี้เพราะคิดว่า “เอเจนต์ก็ต้องอ่านโค้ดอยู่แล้ว” เอเจนต์ที่เริ่มแก้ก่อนเข้าใจเส้นทางการทำงานมักแก้อาการ ณ จุดแรกที่ดูเป็นไปได้ ใช้ `/how` ก่อนมีต้นทุนต่ำกว่าตามแก้บั๊กรอบสอง
+
+ถัดไป: [ออกแบบการเปลี่ยนแปลง](./04-design.md)

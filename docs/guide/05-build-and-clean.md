@@ -1,75 +1,87 @@
-# Build the change and clean the diff
+<a id="build-the-change-and-clean-the-diff"></a>
 
-The build playbooks share one discipline. Say what you observed, let the playbook demand the evidence. This page shows what to put in the prompt for each common build task, then the cleanup habit that keeps diffs reviewable.
+# ลงมือสร้างและเก็บ diff ให้เรียบร้อย
 
-## Prompt each build playbook with what you know
+แนวทางลงมือสร้างมีหลักร่วมกัน: บอกสิ่งที่สังเกตพบ แล้วให้ playbook กำหนดหลักฐานที่ต้องมี หน้านี้แสดงว่าควรใส่อะไรในคำขอสำหรับงานแต่ละแบบ และนิสัยเก็บงานที่ทำให้ diff รีวิวได้ง่าย
 
-A bug prompt states the symptom and asks for a reproduction first:
+<a id="prompt-each-build-playbook-with-what-you-know"></a>
 
-```text
-/poteto-mode this command emits two records after a retry. repro first, then fix and verify.
-```
+## บอกข้อมูลที่รู้ให้ตรงกับงานแต่ละแบบ
 
-A feature prompt states the behavior and what must not change:
+คำขอแก้บั๊กบอกอาการและขอให้ทำปัญหาให้เกิดซ้ำก่อน:
 
 ```text
-/poteto-mode add a --json flag. text output stays byte-identical. verify both forms.
+/poteto-mode คำสั่งนี้ส่งออกสองรายการหลังลองใหม่ ทำให้เกิดปัญหาซ้ำก่อน แล้วแก้และตรวจสอบ
 ```
 
-A refactoring prompt pins behavior before structure moves:
+คำขอเพิ่มฟีเจอร์บอกพฤติกรรมที่ต้องการและสิ่งที่ห้ามเปลี่ยน:
 
 ```text
-/poteto-mode move parsing into one module, zero behavior change. record the current output first and prove it's unchanged after.
+/poteto-mode เพิ่ม flag --json ผลลัพธ์แบบข้อความต้องเหมือนเดิมทุกไบต์ ตรวจสอบทั้งสองรูปแบบ
 ```
 
-A perf prompt states the measurement, not a vibe:
+คำขอปรับโครงสร้างกำหนดพฤติกรรมให้แน่นอนก่อนย้ายโครงสร้าง:
 
 ```text
-/poteto-mode startup takes 1.8s on this fixture. trace it, fix the measured cause, show me before and after.
+/poteto-mode ย้ายการแยกวิเคราะห์ข้อมูลไปอยู่ในโมดูลเดียว พฤติกรรมต้องไม่เปลี่ยน บันทึกผลลัพธ์ปัจจุบันก่อน แล้วพิสูจน์ว่าหลังแก้ยังเหมือนเดิม
 ```
 
-Each of these routes to its playbook ([Bug fix](../../skills/poteto-mode/playbooks/bug-fix.md), [Feature](../../skills/poteto-mode/playbooks/feature.md), [Refactoring](../../skills/poteto-mode/playbooks/refactoring.md), [Perf issue](../../skills/poteto-mode/playbooks/perf-issue.md)), and the playbook supplies the steps you didn't type: reproduce before fixing, name the data shape before implementing, pin behavior before restructuring, profile before optimizing.
-
-For sustained improvement of one number, there's the [Hillclimb playbook](../../skills/poteto-mode/playbooks/hillclimb.md). Give it the metric, a target, and a floor on attempts, and it loops one hypothesis at a time with a frozen measurement harness. It keeps wins and reverts everything else.
-
-## Write the failing test first with `/tdd`
-
-When a bug has a cheap local test path, the whole prompt can be two words:
+คำขอด้านประสิทธิภาพบอกผลวัด ไม่ใช่แค่ความรู้สึก:
 
 ```text
-/tdd implement
+/poteto-mode การเริ่มระบบใช้เวลา 1.8 วินาทีกับข้อมูลทดสอบชุดนี้ ไล่การทำงาน แก้สาเหตุที่วัดพบ แล้วแสดงผลก่อนและหลัง
 ```
 
-In context, that's enough. [`/tdd`](../../skills/tdd/SKILL.md) writes the smallest test that fails for the intended reason, then the fix, then reruns the test. If a test would need broad harness setup or brittle mocks, the skill says so and uses the closest executable check instead. Don't force a test where a real command is stronger evidence.
+แต่ละคำขอจะไปยังแนวทางของตน ([แก้บั๊ก](../../skills/poteto-mode/playbooks/bug-fix.md), [เพิ่มฟีเจอร์](../../skills/poteto-mode/playbooks/feature.md), [ปรับโครงสร้าง](../../skills/poteto-mode/playbooks/refactoring.md), [แก้ปัญหาประสิทธิภาพ](../../skills/poteto-mode/playbooks/perf-issue.md)) โดย playbook เติมขั้นตอนที่คุณไม่ได้พิมพ์: ทำปัญหาให้เกิดซ้ำก่อนแก้ ระบุรูปแบบข้อมูลก่อนสร้าง ยืนยันพฤติกรรมก่อนปรับโครงสร้าง และเก็บข้อมูลประสิทธิภาพก่อนปรับให้เร็วขึ้น
 
-## Let the TypeScript rules load themselves
+หากต้องการปรับตัวเลขหนึ่งอย่างต่อเนื่อง มี [แนวทาง Hillclimb](../../skills/poteto-mode/playbooks/hillclimb.md) ให้ระบุตัวชี้วัด เป้าหมาย และจำนวนครั้งขั้นต่ำที่จะลอง แล้วระบบจะทดสอบสมมติฐานทีละข้อด้วยชุดวัดที่คงเดิม เก็บเฉพาะผลที่ดีขึ้น และย้อนการเปลี่ยนแปลงอื่นทั้งหมด
 
-[`typescript-best-practices`](../../skills/typescript-best-practices/SKILL.md) has no slash command in your workflow. It loads whenever the agent touches a `.ts` or `.tsx` file and turns the type-system principles into concrete rules: discriminated unions, `unknown` at boundaries, exhaustive variants, schema-derived types.
+<a id="write-the-failing-test-first-with-tdd"></a>
 
-## Clean before you commit
+## เขียนการทดสอบที่ล้มเหลวก่อนด้วย `/tdd`
 
-The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) runs `/deslop` on the diff before each commit and applies [`/unslop`](../../skills/unslop/SKILL.md) to the PR description and commit bodies. `/deslop` ships in the `cursor-team-kit` plugin, not in pstack. If you don't have it, ask for the same outcome in plain words: remove narrating comments, unsupported guards, dead compatibility paths, and unrelated edits.
-
-For prose, `/unslop` takes a target and any extra rules you have:
+เมื่อบั๊กมีวิธีทดสอบในเครื่องที่ทำได้ง่าย คำขอทั้งหมดอาจสั้นเท่านี้:
 
 ```text
-/unslop the readme changes, no emdashes
+/tdd ลงมือทำ
 ```
 
-You'll develop your own shorthand. The skill reads intent fine from terse prompts like `unslop that, tighten it`.
+ถ้ามีบริบทอยู่แล้วก็เพียงพอ [`/tdd`](../../skills/tdd/SKILL.md) เขียนการทดสอบขนาดเล็กที่สุดที่ล้มเหลวด้วยเหตุผลที่ต้องการ จากนั้นแก้โค้ดแล้วทดสอบอีกครั้ง หากการทดสอบต้องตั้งเครื่องมือมากหรือใช้ mock ที่เปราะบาง สกิลจะบอกและใช้วิธีตรวจที่รันได้ใกล้เคียงที่สุดแทน อย่าฝืนเขียน test เมื่อคำสั่งจริงให้หลักฐานที่ดีกว่า
 
-## Strip the comments with `/no-comments`
+<a id="let-the-typescript-rules-load-themselves"></a>
 
-Comments need their own pass, and not from the agent that wrote them. An author defends its comments the way you'd defend yours. So before review, hand them to fresh eyes:
+## ให้กฎ TypeScript โหลดเอง
+
+[`typescript-best-practices`](../../skills/typescript-best-practices/SKILL.md) ไม่ต้องเรียกด้วยคำสั่ง slash ใน workflow ของคุณ จะโหลดเมื่อเอเจนต์แตะไฟล์ `.ts` หรือ `.tsx` และเปลี่ยนหลักการระบบชนิดข้อมูลเป็นกฎที่ใช้จริง เช่น discriminated unions ใช้ `unknown` ที่ขอบเขตระบบ ตรวจทุกกรณีให้ครบ และสร้างชนิดข้อมูลจาก schema
+
+<a id="clean-before-you-commit"></a>
+
+## เก็บงานก่อน commit
+
+[แนวทางเปิด PR](../../skills/poteto-mode/playbooks/opening-a-pr.md) เรียก `/deslop` กับ diff ก่อนทุก commit และใช้ [`/unslop`](../../skills/unslop/SKILL.md) กับคำอธิบาย PR และเนื้อหา commit `/deslop` อยู่ในปลั๊กอิน `cursor-team-kit` ไม่ได้รวมใน pstack หากไม่มี ให้ขอผลเดียวกันด้วยภาษาปกติ: ลบคอมเมนต์ที่แค่บรรยายโค้ด เงื่อนไขป้องกันที่ไม่มีเหตุผลรองรับ ทางรองรับระบบเก่าที่ไม่ใช้แล้ว และการแก้ที่ไม่เกี่ยวข้อง
+
+สำหรับข้อความ `/unslop` รับเป้าหมายและกฎเพิ่มเติมของคุณ:
 
 ```text
-/no-comments the diff
+/unslop ส่วนที่แก้ใน readme ไม่ใช้ em dash
 ```
 
-[`/no-comments`](../../skills/no-comments/SKILL.md) spawns [Comment Sicko](../../agents/comment-sicko.md), a read-only reviewer with a short keep list: license headers, doc comments on a public API, links that explain what code can't, behavior forced by an external dependency you can't reshape. Everything else goes. A surprise in your own code gets no such pass. The comment comes back as a refactor flag, and `/no-comments` fixes the flags it accepts at the root cause. When a comment claims a constraint, "do not remove", the skill offers to encode the claim as a type, test, or lint. Either way, the comment comes out.
+คุณจะมีคำสั่งย่อของตัวเองได้ สกิลเข้าใจคำขอสั้น ๆ เช่น `unslop ตรงนั้น ทำให้กระชับ`
 
-The division of labor is worth keeping straight. `/deslop` cleans slop out of the code, `/unslop` cleans it out of prose, and `/no-comments` hands the comments to a reviewer who didn't write them.
+<a id="strip-the-comments-with-no-comments"></a>
 
-**Pitfall:** cleanup is not optional polish. A diff with narrating comments and defensive dead weight reads as unfinished to reviewers, and the extra code is where the next bug hides. If the diff feels padded, say `deslop it` before you commit, not after review calls it out.
+## ตัดคอมเมนต์ด้วย `/no-comments`
 
-Next: [Verify and ship](./06-verify-and-ship.md).
+คอมเมนต์ควรได้รับการตรวจอีกรอบโดยเอเจนต์ที่ไม่ได้เขียนมัน ผู้เขียนมักปกป้องคอมเมนต์ของตัวเองเหมือนที่คุณก็อาจทำ ก่อนรีวิวจึงควรให้คนใหม่ดู:
+
+```text
+/no-comments ตรวจ diff นี้
+```
+
+[`/no-comments`](../../skills/no-comments/SKILL.md) เรียก [Comment Sicko](../../agents/comment-sicko.md) ผู้รีวิวแบบอ่านอย่างเดียว ซึ่งเก็บคอมเมนต์เพียงไม่กี่ประเภท: หัวข้อใบอนุญาต เอกสาร API สาธารณะ ลิงก์ที่อธิบายสิ่งที่โค้ดอธิบายไม่ได้ และพฤติกรรมที่ถูกบังคับโดย dependency ภายนอกซึ่งคุณปรับไม่ได้ ส่วนอื่นจะถูกตัด ความซับซ้อนที่ไม่คาดคิดในโค้ดของคุณไม่ได้รับข้อยกเว้นนั้น คอมเมนต์จะถูกส่งกลับมาเป็นจุดที่ควรปรับโครงสร้าง และ `/no-comments` จะแก้รายการที่ยอมรับจากต้นเหตุ หากคอมเมนต์อ้างข้อจำกัด เช่น “ห้ามลบ” สกิลจะเสนอให้แปลงข้อจำกัดนั้นเป็นชนิดข้อมูล การทดสอบ หรือ lint ไม่ว่าทางใด คอมเมนต์ก็จะถูกนำออก
+
+แยกหน้าที่ให้ชัด: `/deslop` เก็บความรกในโค้ด `/unslop` เก็บความรกในข้อความ และ `/no-comments` ส่งคอมเมนต์ให้ผู้รีวิวที่ไม่ได้เขียนมัน
+
+**ข้อควรระวัง:** การเก็บงานไม่ใช่ของตกแต่งที่เลือกข้ามได้ diff ที่เต็มไปด้วยคอมเมนต์บรรยายโค้ดและโค้ดป้องกันที่ไม่จำเป็นดูเหมือนงานยังไม่เสร็จ และโค้ดส่วนเกินอาจซ่อนบั๊กถัดไป ถ้า diff ดูพองเกินไป ให้สั่ง `deslop it` ก่อน commit แทนการรอให้ผู้รีวิวทัก
+
+ถัดไป: [ตรวจสอบและส่งงาน](./06-verify-and-ship.md)

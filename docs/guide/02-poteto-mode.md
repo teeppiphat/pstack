@@ -1,23 +1,27 @@
-# Route work through `/poteto-mode`
+<a id="route-work-through-poteto-mode"></a>
 
-`/poteto-mode` is the front door. You give it a goal, it matches one of twenty-three playbooks, copies that playbook's steps into the todo list, and calls the other skills as the steps need them. In this page you learn what a good prompt looks like, and how little of one you actually need.
+# ส่งงานผ่าน `/poteto-mode`
 
-![A dispatcher pulls a switch lever to route robots on rail handcars toward lit gates, under a /poteto-mode departure board listing BUG FIX, FEATURE, and INVESTIGATION.](./images/router.jpg)
+`/poteto-mode` คือจุดเริ่มต้น คุณบอกเป้าหมาย ระบบจะเลือกหนึ่งในแนวทางทำงาน 23 แบบ (playbook) คัดลอกขั้นตอนลงในรายการงาน แล้วเรียกสกิลอื่นเมื่อขั้นตอนนั้นต้องใช้ หน้านี้อธิบายว่าคำสั่งที่ดีหน้าตาเป็นอย่างไร และจริง ๆ แล้วคุณต้องพิมพ์น้อยแค่ไหน
 
-## What happens to your prompt
+![เจ้าหน้าที่โยกคันสับรางเพื่อส่งหุ่นยนต์บนรถรางไปยังประตูที่มีไฟ ใต้ป้าย /poteto-mode ซึ่งแสดง BUG FIX, FEATURE และ INVESTIGATION](./images/router.jpg)
+
+<a id="what-happens-to-your-prompt"></a>
+
+## ระบบจัดการคำขอของคุณอย่างไร
 
 ```mermaid
 flowchart TD
-    A[Your prompt] --> B[poteto-mode]
-    B --> C[Read the Principles section]
-    C --> D{Match the task}
-    D -->|Read-only question| E[Investigation]
-    D -->|Defect| F[Bug fix]
-    D -->|New behavior| G[Feature]
-    D -->|Structure only| H[Refactoring]
-    D -->|Measured slowness| I[Perf issue]
-    D -->|Large work or no match| J[figure-it-out]
-    E --> K[Verify and report]
+    A[คำขอของคุณ] --> B[poteto-mode]
+    B --> C[อ่านส่วนหลักการ]
+    C --> D{เลือกแนวทางให้ตรงกับงาน}
+    D -->|คำถามที่ไม่แก้ไขข้อมูล| E[สืบค้น]
+    D -->|ข้อบกพร่อง| F[แก้บั๊ก]
+    D -->|พฤติกรรมใหม่| G[เพิ่มฟีเจอร์]
+    D -->|เปลี่ยนเฉพาะโครงสร้าง| H[ปรับโครงสร้าง]
+    D -->|ความช้าที่มีผลวัด| I[แก้ปัญหาประสิทธิภาพ]
+    D -->|งานใหญ่หรือไม่ตรงกับแบบใด| J[figure-it-out]
+    E --> K[ตรวจสอบและรายงาน]
     F --> K
     G --> K
     H --> K
@@ -25,74 +29,82 @@ flowchart TD
     J --> K
 ```
 
-The diagram shows the common routes. There are also playbooks for hillclimbing a metric, diagnosing runtime symptoms and captured traces, prototypes, visual parity, authoring and evaluating skills, autonomous runs, babysitting a PR or stack to merge-ready, shipping a verified stack, running a PR queue on autopilot, orchestrating project-scale programs, session pickup, pausing safely, multi-phase plans, and worktree cleanup. The [playbook directory](../../skills/poteto-mode/playbooks/) has the full set.
+แผนภาพแสดงเส้นทางที่พบบ่อย ยังมีแนวทางสำหรับปรับปรุงตัวชี้วัดทีละรอบ วิเคราะห์อาการขณะทำงานและข้อมูล trace ที่บันทึกไว้ สร้างต้นแบบ ทำ UI ให้ตรงกัน เขียนและประเมินสกิล ทำงานอัตโนมัติ ดูแล PR หรือชุด PR ให้พร้อม merge รวมชุด PR ที่ตรวจสอบแล้ว เดินคิว PR อัตโนมัติ ประสานงานระดับโปรเจกต์ รับช่วงเซสชัน พักงานอย่างปลอดภัย วางแผนหลายระยะ และล้าง worktree ดูทั้งหมดได้ที่ [ไดเรกทอรี playbook](../../skills/poteto-mode/playbooks/)
 
-## Say the goal, not the ceremony
+<a id="say-the-goal-not-the-ceremony"></a>
 
-You don't write a spec. You say what's wrong or what you want, plus anything you already know that saves the agent time:
+## บอกเป้าหมาย ไม่ต้องแจกแจงพิธีการ
+
+คุณไม่ต้องเขียนข้อกำหนดยาว ๆ แค่บอกว่าอะไรผิดปกติหรือต้องการอะไร พร้อมข้อมูลที่รู้อยู่แล้วและช่วยประหยัดเวลาของเอเจนต์:
 
 ```text
-/poteto-mode users get two notifications after a retry. repro first, then fix and verify.
+/poteto-mode ผู้ใช้ได้รับการแจ้งเตือนสองครั้งหลังลองใหม่ ทำให้เกิดปัญหาซ้ำก่อน แล้วแก้และตรวจสอบ
 ```
 
-That's a Bug fix prompt. "repro first" is a real constraint, not politeness, and the playbook honors it. Watch the todo list fill with the Bug fix steps. A skipped step stays visible with `skip: <reason>`.
+นี่คือคำขอแบบ Bug fix คำว่า “ทำให้เกิดปัญหาซ้ำก่อน” เป็นข้อกำหนดจริง และแนวทางทำงานจะทำตาม ดูรายการงานที่เติมขั้นตอนแก้บั๊กเข้ามา ขั้นตอนที่ข้ามจะยังแสดงพร้อม `skip: <reason>`
 
-When the conversation already carries the context, the prompt shrinks to almost nothing. All of these are enough:
-
-```text
-/poteto-mode do it
-```
+เมื่อบทสนทนามีบริบทอยู่แล้ว คำขออาจสั้นมาก ตัวอย่างทั้งหมดนี้เพียงพอ:
 
 ```text
-continue
+/poteto-mode ทำเลย
 ```
 
 ```text
-keep going until done
+ทำต่อ
 ```
-
-Short works because the mode is sticky and the playbook holds the structure. Your words carry the intent, and the skill carries the rigor.
-
-## Switch tasks with "new task"
-
-A long chat accumulates context from the last task. When you change subjects, say so:
 
 ```text
-/poteto-mode new task. figure out why the cache entry survives logout. don't change any code yet.
+ทำต่อจนเสร็จ
 ```
 
-"new task" tells `/poteto-mode` to re-match rather than continue the prior playbook. "don't change any code yet" pins this one to Investigation. Without those two phrases, a mode mid-Feature tends to treat your question as the next feature step.
+คำสั่งสั้นใช้ได้เพราะโหมดทำงานต่อเนื่องและ playbook กำหนดโครงสร้างไว้ คำพูดของคุณบอกเจตนา ส่วนสกิลดูแลความรอบคอบ
 
-## Give parallel work its own worktree
+<a id="switch-tasks-with-new-task"></a>
 
-If you run several agents against one repository, they will fight over the working tree. Ask for isolation up front:
+## เปลี่ยนงานด้วยคำว่า “new task”
+
+แชตยาวจะสะสมบริบทจากงานก่อนหน้า ถ้าเปลี่ยนเรื่อง ให้บอกชัดเจน:
 
 ```text
-/poteto-mode new task. branch off <base> in a fresh worktree, then port the parser change there.
+/poteto-mode new task หาสาเหตุว่าทำไมรายการในแคชยังอยู่หลังออกจากระบบ ยังไม่ต้องแก้โค้ด
 ```
 
-Each task in its own branch and worktree means no agent stomps another's files. The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) already works from a worktree for code changes, so mostly you only say this when a specific base or location matters.
+“new task” บอกให้ `/poteto-mode` เลือกแนวทางใหม่ แทนการทำตามแนวทางเดิมต่อ ส่วน “ยังไม่ต้องแก้โค้ด” กำหนดให้งานนี้เป็น Investigation หากไม่มีสองข้อความนี้ โหมดที่กำลังทำ Feature อาจมองคำถามของคุณเป็นขั้นตอนถัดไปของฟีเจอร์
 
-Worktrees accumulate. When disk gets tight, ask:
+<a id="give-parallel-work-its-own-worktree"></a>
+
+## แยก worktree สำหรับงานที่ทำพร้อมกัน
+
+ถ้าเอเจนต์หลายตัวทำงานบน repository เดียวกัน อาจแก้ไฟล์ทับกัน ขอให้แยกพื้นที่ตั้งแต่ต้น:
 
 ```text
-/poteto-mode what's eating my disk? prune the worktrees that are safe to prune.
+/poteto-mode new task แตก branch จาก <base> ใน worktree ใหม่ แล้วนำการแก้ parser ไปทำที่นั่น
 ```
 
-The [Worktree cleanup playbook](../../skills/poteto-mode/playbooks/worktree-cleanup.md) classifies every worktree by merge state, uncommitted work, and which chats still touch it. It deletes only what that evidence clears and pauses for your call on anything holding uncommitted work.
+แยก branch และ worktree ต่อหนึ่งงานช่วยให้เอเจนต์ไม่ทับไฟล์กัน [แนวทางเปิด PR](../../skills/poteto-mode/playbooks/opening-a-pr.md) ใช้ worktree สำหรับงานแก้โค้ดอยู่แล้ว จึงมักต้องระบุเรื่องนี้เฉพาะเมื่อฐานหรือที่ตั้งมีความสำคัญ
 
-## Leave it running
-
-When you step away, say what done means and go:
+worktree จะสะสมเพิ่มขึ้น เมื่อพื้นที่ใกล้เต็ม ให้ถาม:
 
 ```text
-/poteto-mode im stepping away. keep going until the migration check reports zero old callers. log your decisions.
+/poteto-mode อะไรกินพื้นที่ดิสก์อยู่? ลบ worktree ที่ตรวจแล้วว่าลบได้อย่างปลอดภัย
 ```
 
-Work you'll review later routes through [`/figure-it-out`](../../skills/figure-it-out/SKILL.md), which designs the run's phases and keeps a [`/show-me-your-work`](../../skills/show-me-your-work/SKILL.md) decision log. [Run work while you sleep](./07-overnight.md) covers the full overnight contract.
+[แนวทางล้าง worktree](../../skills/poteto-mode/playbooks/worktree-cleanup.md) แยกประเภทแต่ละ worktree ตามสถานะ merge งานที่ยังไม่ commit และแชตที่ยังใช้งานอยู่ จะลบเฉพาะรายการที่หลักฐานยืนยันว่าปลอดภัย และรอให้คุณตัดสินใจสำหรับรายการที่มีงานยังไม่ commit
 
-**Pitfall:** don't enumerate skills in your prompt ("use /how, then /architect, then /arena..."). The playbook already sequences them, and a hand-written sequence usually reorders or drops steps the playbook would have kept. Name a skill only when you want to override a specific choice.
+<a id="leave-it-running"></a>
 
-Read [`poteto-mode`](../../skills/poteto-mode/SKILL.md) itself for the full routing rules.
+## ปล่อยให้ทำงานต่อ
 
-Next: [Understand the code](./03-understand.md).
+เมื่อคุณต้องไปทำอย่างอื่น ให้บอกว่าแบบไหนถือว่าเสร็จ แล้วปล่อยให้ทำต่อ:
+
+```text
+/poteto-mode ผมจะไปทำอย่างอื่น ทำต่อจนผลตรวจการย้ายระบบรายงานว่าไม่มีผู้เรียกแบบเก่าเหลืออยู่ บันทึกการตัดสินใจด้วย
+```
+
+งานที่คุณจะกลับมารีวิวภายหลังจะผ่าน [`/figure-it-out`](../../skills/figure-it-out/SKILL.md) ซึ่งออกแบบระยะการทำงานและเก็บบันทึกการตัดสินใจด้วย [`/show-me-your-work`](../../skills/show-me-your-work/SKILL.md) หน้า [ปล่อยให้ทำงานระหว่างที่คุณนอน](./07-overnight.md) อธิบายข้อตกลงทั้งหมด
+
+**ข้อควรระวัง:** อย่าเรียงชื่อสกิลในคำขอ เช่น “ใช้ /how แล้ว /architect แล้ว /arena...” เพราะ playbook จัดลำดับไว้แล้ว การเรียงเองมักสลับหรือทำให้ตกขั้นตอนที่ควรมี ระบุชื่อสกิลเฉพาะเมื่ออยากเปลี่ยนตัวเลือกบางอย่าง
+
+อ่านกฎเลือกเส้นทางทั้งหมดได้ใน [`poteto-mode`](../../skills/poteto-mode/SKILL.md)
+
+ถัดไป: [ทำความเข้าใจโค้ด](./03-understand.md)

@@ -1,87 +1,101 @@
-# Verify the result and open a PR
+<a id="verify-the-result-and-open-a-pr"></a>
 
-"It compiles" is not evidence. The [Prove It Works principle](../../skills/principle-prove-it-works/SKILL.md) makes the agent check the real artifact before it reports success, and your job is to make "the real artifact" checkable. This page covers stating a finish condition, generating a verification skill for your app, opening the PR, and driving it to merged.
+# ตรวจสอบผลลัพธ์และเปิด PR
 
-![A prototype plane flies a real test course while she times it with a stopwatch and robots film and checklist the run; the terminal reads verify: pass, evidence: captured.](./images/verification.jpg)
+“คอมไพล์ผ่าน” ยังไม่ใช่หลักฐานว่าพฤติกรรมถูกต้อง [หลักการ Prove It Works](../../skills/principle-prove-it-works/SKILL.md) ให้เอเจนต์ตรวจผลงานจริงก่อนรายงานว่าสำเร็จ หน้าที่ของคุณคือกำหนดให้ผลงานนั้นตรวจสอบได้ หน้านี้ครอบคลุมเกณฑ์งานเสร็จ การสร้างสกิลตรวจแอป การเปิด PR และการดูแลจน merge
 
-## State the finish condition up front
+![เครื่องบินต้นแบบบินในเส้นทางทดสอบจริง ขณะที่ผู้ทดสอบจับเวลาด้วยนาฬิกาและหุ่นยนต์ถ่ายภาพกับตรวจรายการ หน้าจอแสดง verify: pass, evidence: captured](./images/verification.jpg)
 
-Put what done means in the first prompt, in whatever words fit:
+<a id="state-the-finish-condition-up-front"></a>
+
+## บอกเกณฑ์งานเสร็จตั้งแต่ต้น
+
+ใส่ความหมายของคำว่าเสร็จในคำขอแรกด้วยถ้อยคำที่เหมาะกับงาน:
 
 ```text
-/poteto-mode add json output to this command. text output stays byte-identical, the json parses, both run against the sample project. show me the evidence.
+/poteto-mode เพิ่มผลลัพธ์ json ให้คำสั่งนี้ ข้อความต้องเหมือนเดิมทุกไบต์ json ต้องแยกวิเคราะห์ได้ และทั้งสองแบบต้องรันกับโปรเจกต์ตัวอย่าง แสดงหลักฐานด้วย
 ```
 
-Now the agent has three checks it can run, not a mood to satisfy. When the reply comes back, it should carry the exact commands and outputs. If a check couldn't run, a good reply says "inconclusive", and you should treat a confident reply without evidence as a red flag.
+ตอนนี้เอเจนต์มีสามรายการที่ตรวจได้จริง เมื่อส่งคำตอบกลับ ควรมีคำสั่งที่ใช้และผลลัพธ์ตรงตามที่รัน หากตรวจบางอย่างไม่ได้ คำตอบที่ดีจะบอกว่า “ยังสรุปไม่ได้” คำตอบมั่นใจโดยไม่มีหลักฐานควรทำให้คุณระวัง
 
-Match the check to the change:
+เลือกวิธีตรวจให้ตรงกับการเปลี่ยนแปลง:
 
-- A CLI change runs the real command.
-- A UI change walks the changed flow in the running app.
-- A parser or migration replays a saved input.
-- A perf change compares before and after profiles.
-- A storage change reads back the written value.
+- เปลี่ยน CLI ให้รันคำสั่งจริง
+- เปลี่ยน UI ให้ลองเส้นทางที่เปลี่ยนในแอปที่เปิดใช้งานอยู่
+- เปลี่ยน parser หรือการย้ายข้อมูล ให้รันซ้ำด้วยข้อมูลขาเข้าที่บันทึกไว้
+- เปลี่ยนประสิทธิภาพ ให้เทียบข้อมูลวัดก่อนและหลัง
+- เปลี่ยนการจัดเก็บ ให้ลองอ่านค่าที่เพิ่งเขียนกลับมา
 
-For a small diff you don't fully trust, [`/blast-radius`](../../skills/blast-radius/SKILL.md) finds what it could break elsewhere. It picks the one fact the change is safe because of and proves it by running code instead of writing an essay about it.
+สำหรับ diff เล็กที่ยังไม่มั่นใจ [`/blast-radius`](../../skills/blast-radius/SKILL.md) ช่วยหาว่าอาจทำให้ส่วนไหนเสีย จะเลือกข้อเท็จจริงหลักที่ทำให้การเปลี่ยนแปลงปลอดภัย แล้วพิสูจน์ด้วยการรันโค้ดแทนการอธิบายยาว ๆ
 
-## Create a project verification skill
+<a id="create-a-project-verification-skill"></a>
 
-The UI bullet above hides a real requirement. The agent needs a scripted way to drive your app. If your project has one, great. If not, run:
+## สร้างสกิลตรวจสอบเฉพาะโปรเจกต์
+
+ข้อ UI ข้างต้นมีสิ่งที่ต้องเตรียมจริง: เอเจนต์ต้องมีวิธีใช้คำสั่งควบคุมแอปของคุณ ถ้าโปรเจกต์มีแล้วก็ดี หากยังไม่มี ให้เรียก:
 
 ```text
 /create-verification-skill
 ```
 
-[`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md) interviews the repository, not you. It works out what a user touches, how the app launches locally, what can drive it (an existing harness first, otherwise browser and CDP, a PTY, or plain HTTP), what evidence proves behavior, and whether two instances can run side by side. It asks you only what the code can't answer.
+[`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md) สืบข้อมูลจาก repository ก่อนถามคุณ จะดูว่าผู้ใช้ทำอะไร เริ่มแอปในเครื่องอย่างไร อะไรควบคุมแอปได้ (ใช้ชุดเครื่องมือเดิมก่อน มิฉะนั้นใช้เบราว์เซอร์กับ CDP, PTY หรือ HTTP) หลักฐานใดพิสูจน์พฤติกรรม และเปิดสองอินสแตนซ์คู่กันได้หรือไม่ ถามคุณเฉพาะสิ่งที่โค้ดตอบไม่ได้
 
-It writes `.cursor/skills/verify-<app>/`, agent-facing instructions with exact Launch, Doctor, Drive, Evidence, and Cleanup sections, plus a feature map under `features/` that indexes what the app does and what result proves each feature works. The skill ships a [worked feature-map example](../../skills/create-verification-skill/references/feature-map-example/) with a README index and one file per feature using the four required H2s. Before handing it over, the generator proves the skill once end to end: launch, doctor check, drive one feature, capture evidence, clean up. If that proof fails, don't use the output.
+ระบบเขียน `.cursor/skills/verify-<app>/` เป็นคำแนะนำสำหรับเอเจนต์ แบ่งส่วน Launch, Doctor, Drive, Evidence และ Cleanup ชัดเจน พร้อมแผนที่ฟีเจอร์ใต้ `features/` ที่ระบุว่าแอปทำอะไรและผลแบบใดพิสูจน์ว่าแต่ละฟีเจอร์ทำงาน มี [ตัวอย่างแผนที่ฟีเจอร์ครบชุด](../../skills/create-verification-skill/references/feature-map-example/) พร้อม README เป็นสารบัญและไฟล์ต่อฟีเจอร์ที่มี H2 ทั้งสี่ตามข้อกำหนด ก่อนส่งมอบ ตัวสร้างจะพิสูจน์สกิลตั้งแต่ต้นจนจบหนึ่งรอบ: เปิดแอป ตรวจสภาพแวดล้อม ใช้หนึ่งฟีเจอร์ เก็บหลักฐาน แล้วเก็บกวาด หากพิสูจน์ไม่ผ่าน อย่าใช้ผลลัพธ์นั้น
 
-From then on, "verify it in the app" is a step any agent can execute, in this repo, with no setup conversation.
+จากนั้น “ตรวจในแอปจริง” จะเป็นขั้นตอนที่เอเจนต์ใดก็ทำใน repository นี้ได้ โดยไม่ต้องคุยเรื่องตั้งค่าใหม่
 
-Once the verify skill works, a [`/swarm`](../../skills/swarm/SKILL.md) can split a full pass by feature-map entry and aggregate the results.
+เมื่อสกิลตรวจสอบทำงานแล้ว [`/swarm`](../../skills/swarm/SKILL.md) จะแบ่งการตรวจเต็มรอบตามรายการในแผนที่ฟีเจอร์และรวมผลได้
 
-## Keep the verification skill honest
+<a id="keep-the-verification-skill-honest"></a>
 
-Apps change and feature maps rot. When yours drifts, run:
+## ดูแลให้สกิลตรวจสอบตรงกับความจริง
+
+แอปเปลี่ยนไปและแผนที่ฟีเจอร์อาจล้าสมัย เมื่อเริ่มไม่ตรงกัน ให้เรียก:
 
 ```text
 /maintain-verification-skill
 ```
 
-[`/maintain-verification-skill`](../../skills/maintain-verification-skill/SKILL.md) audits the generated skill: one read-only source reader per feature in parallel, then one live pass that drives every mapped feature. It ends in exactly one of three outcomes. `clean` means full coverage and nothing to ship. `changed` means one PR of proven corrections, confined to the verification skill's own directory. `blocked` names the blocker. It never edits product code. If the live pass catches a product regression, it reports the regression instead of papering over it in docs.
+[`/maintain-verification-skill`](../../skills/maintain-verification-skill/SKILL.md) ตรวจสกิลที่สร้างไว้ โดยให้ผู้ตรวจ source แบบอ่านอย่างเดียวหนึ่งตัวต่อฟีเจอร์ทำงานพร้อมกัน แล้วลองใช้งานจริงทุกฟีเจอร์หนึ่งรอบ ผลมีสามแบบเท่านั้น: `clean` คือครอบคลุมครบและไม่มีอะไรต้องส่ง `changed` คือมี PR หนึ่งรายการที่แก้สิ่งที่พิสูจน์แล้ว เฉพาะภายในไดเรกทอรีของสกิลตรวจสอบ และ `blocked` คือระบุสิ่งที่ขัดขวาง สกิลนี้ไม่แก้โค้ดผลิตภัณฑ์ หากการลองจริงพบว่าผลิตภัณฑ์ทำงานผิด จะรายงานปัญหาแทนการแก้เอกสารเพื่อกลบมัน
 
-## Open the PR
+<a id="open-the-pr"></a>
 
-```text
-/poteto-mode open the pr. small ordered commits, evidence in the description.
-```
-
-The [Opening a PR playbook](../../skills/poteto-mode/playbooks/opening-a-pr.md) works from a worktree, rebases the work into small ordered commits, cleans the diff, unslops the prose, and returns the PR link. Five narrow PRs beat one fat one, and stacked follow-ups beat a growing branch.
-
-## Drive the PR to merge-ready with Babysit
-
-An open PR starts collecting blockers immediately. Checks fail, reviewers comment, trunk moves. Hand that churn to the [Babysit playbook](../../skills/poteto-mode/playbooks/babysit.md):
+## เปิด PR
 
 ```text
-/poteto-mode babysit this pr. get it green.
+/poteto-mode เปิด PR แบ่ง commit เล็ก ๆ ตามลำดับ และใส่หลักฐานในคำอธิบาย
 ```
 
-Babysit watches the PR with a bundled watcher and takes blockers in order: conflicts, then review threads, then CI. Every known fix batches into one push, so the checks restart once instead of after every fix. The comment triage is skeptical, because humans and bots file real catches and noise in the same list. A real finding gets a fix, and noise gets dismissed with the disproof posted on the thread. When all you want is status, ask smaller and Babysit answers without starting the loop:
+[แนวทางเปิด PR](../../skills/poteto-mode/playbooks/opening-a-pr.md) ทำงานใน worktree จัดงานด้วย rebase ให้เป็น commit เล็กตามลำดับ เก็บ diff และข้อความให้เรียบร้อย แล้วส่งลิงก์ PR กลับมา PR เล็กห้ารายการดีกว่ารายการใหญ่หนึ่งรายการ และการต่อ PR เป็นชุดดีกว่าปล่อย branch โตขึ้นเรื่อย ๆ
+
+<a id="drive-the-pr-to-merge-ready-with-babysit"></a>
+
+## ดูแล PR ให้พร้อม merge ด้วย Babysit
+
+เมื่อเปิด PR ก็เริ่มมีสิ่งขัดขวางทันที: การตรวจล้มเหลว ผู้รีวิวแสดงความคิดเห็น และ branch หลักเปลี่ยน ส่งงานดูแลนี้ให้ [แนวทาง Babysit](../../skills/poteto-mode/playbooks/babysit.md):
 
 ```text
-/poteto-mode check on pr 123. anything outstanding?
+/poteto-mode babysit PR นี้ ทำให้การตรวจผ่านทั้งหมด
 ```
 
-Babysit stops at merge-ready. It never merges, even with everything green, because merging is a different decision.
-
-## Land the stack with Shipping
-
-Green is not the same as safe. When you're ready to land, say so:
+Babysit ใช้เครื่องมือติดตาม PR ที่รวมมา และแก้สิ่งขัดขวางตามลำดับ: conflict ก่อน ตามด้วยบทสนทนารีวิว แล้วจึง CI จะรวมการแก้ที่รู้ทั้งหมดไว้ในการ push ครั้งเดียว เพื่อให้การตรวจเริ่มใหม่เพียงรอบเดียว การคัดกรองคอมเมนต์ใช้ความระมัดระวัง เพราะทั้งคนและบอตส่งได้ทั้งปัญหาจริงและข้อเสนอที่ไม่จำเป็น ปัญหาจริงจะได้รับการแก้ ส่วนรายการที่ไม่รับจะมีหลักฐานหักล้างโพสต์ในบทสนทนานั้น หากต้องการแค่สถานะ ให้ถามสั้นลงแล้ว Babysit จะตอบโดยไม่เริ่มวนทำงาน:
 
 ```text
-/poteto-mode land the stack.
+/poteto-mode ตรวจ PR 123 มีอะไรค้างอยู่ไหม?
 ```
 
-The [Shipping playbook](../../skills/poteto-mode/playbooks/shipping.md) verifies each PR independently before it arms anything. One fresh agent per PR proves the behavior live, and the agent that judges a change is never the one that wrote it. Then Shipping lands only the contiguous verified run from the bottom, one PR at a time through GitHub by default or Origin when its CLI is available, and reports the first PR that breaks the chain. A verified PR sitting above an unverified one waits, because merging it would pull the gap in underneath.
+Babysit หยุดที่พร้อม merge และไม่ merge เองแม้ทุกอย่างผ่าน เพราะการ merge เป็นอีกการตัดสินใจหนึ่ง
 
-Next: [Run work while you sleep](./07-overnight.md).
+<a id="land-the-stack-with-shipping"></a>
+
+## รวมชุด PR ด้วย Shipping
+
+การตรวจผ่านไม่ได้แปลว่าปลอดภัยเสมอ เมื่อพร้อมรวมงาน ให้บอก:
+
+```text
+/poteto-mode รวมชุด PR นี้
+```
+
+[แนวทาง Shipping](../../skills/poteto-mode/playbooks/shipping.md) ตรวจแต่ละ PR อย่างอิสระก่อนเตรียมรวม ให้เอเจนต์ใหม่หนึ่งตัวต่อ PR พิสูจน์พฤติกรรมจริง และเอเจนต์ตัดสินต้องไม่ใช่ตัวที่เขียน จากนั้นรวมเฉพาะ PR ที่ตรวจแล้วและต่อเนื่องจากล่างขึ้นบน ทีละรายการ ผ่าน GitHub ตามค่าเริ่มต้น หรือ Origin เมื่อมี CLI พร้อมใช้ และรายงาน PR แรกที่ทำให้ลำดับขาด PR ที่ผ่านแต่มี PR ยังไม่ผ่านอยู่ด้านล่างต้องรอ เพราะการ merge จะดึงส่วนที่ยังไม่ตรวจเข้ามาด้วย
+
+ถัดไป: [ปล่อยให้ทำงานระหว่างที่คุณนอน](./07-overnight.md)

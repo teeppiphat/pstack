@@ -1,94 +1,114 @@
-# Recipes and pitfalls
+<a id="recipes-and-pitfalls"></a>
 
-Prompts worth copying, then the mistakes everyone makes once. Swap in your own paths and finish conditions. The recipes are deliberately informal. That's how they get typed in practice, and the skills read intent fine.
+# สูตรคำสั่งและข้อควรระวัง
 
-![She tastes a finished dish while robots cook from a recipe box, with pinned cards reading /how, /tdd, and /loop above the counter.](./images/recipes.jpg)
+รวมคำขอที่นำไปใช้ได้ ตามด้วยข้อผิดพลาดที่หลายคนเคยเจอ เปลี่ยน path และเกณฑ์งานเสร็จเป็นของคุณเอง ตัวอย่างตั้งใจใช้ภาษาพูด เพราะเป็นแบบที่พิมพ์จริง และสกิลเข้าใจเจตนาได้
 
-## Understand an unfamiliar subsystem
+![ผู้ใช้ชิมอาหารที่เสร็จแล้ว ขณะที่หุ่นยนต์ทำอาหารจากกล่องสูตร เหนือเคาน์เตอร์มีบัตร /how, /tdd และ /loop](./images/recipes.jpg)
 
-```text
-use /how first to understand how this initialization works. then use /why to figure out why it broke recently.
-```
+<a id="understand-an-unfamiliar-subsystem"></a>
 
-Mechanics first, history second. Each skill's report tells you which sources it searched, so you know what the answer is grounded in.
-
-## Get a second opinion on a design
+## ทำความเข้าใจระบบย่อยที่ไม่คุ้นเคย
 
 ```text
-ask /arena for a second opinion on this thread and our approach
+ใช้ /how ก่อนเพื่อเข้าใจว่าการเริ่มระบบนี้ทำงานอย่างไร แล้วใช้ /why หาว่าทำไมเพิ่งพังเมื่อไม่นานนี้
 ```
 
-Your current design becomes one candidate among several, and the synthesis tells you whether the panel found something better or confirmed what you had. Cheap insurance before a costly commitment.
+เข้าใจกลไกก่อน แล้วค่อยดูประวัติ รายงานแต่ละสกิลบอกว่าค้นแหล่งใดบ้าง คุณจึงรู้ว่าคำตอบอิงอะไร
 
-## Check independent slices in parallel
+<a id="get-a-second-opinion-on-a-design"></a>
+
+## ขอความเห็นที่สองเรื่องการออกแบบ
 
 ```text
-/swarm check every package under packages/ against its check.sh. one worker per package. one report.
+ขอให้ /arena ให้ความเห็นที่สองกับบทสนทนานี้และแนวทางของเรา
 ```
 
-Each worker owns one package. The parent waits for every slice and returns one `PASS`, `ISSUES`, or `BLOCKED` report instead of raw worker dumps.
+แบบปัจจุบันจะเป็นหนึ่งในหลายทางเลือก ผลสังเคราะห์จะบอกว่าทีมพบแบบที่ดีกว่าหรือยืนยันแบบเดิม เป็นการลดความเสี่ยงที่ต้นทุนต่ำก่อนตัดสินใจเรื่องใหญ่
 
-## Review a branch skeptically
+<a id="check-independent-slices-in-parallel"></a>
+
+## ตรวจส่วนงานอิสระพร้อมกัน
 
 ```text
-/interrogate the whole branch, but skeptically. don't change anything yet. no nitpicks unless it's an actual bug or regression in behavior.
+/swarm ตรวจทุก package ใต้ packages/ ด้วย check.sh ของแต่ละ package ใช้ผู้ทำงานหนึ่งตัวต่อ package แล้วสรุปรายงานเดียว
 ```
 
-The qualifiers do real work. "don't change anything yet" keeps it read-only, and the nitpick rule pre-filters the noise so `Act on` findings are worth your time.
+ผู้ทำงานแต่ละตัวรับผิดชอบหนึ่ง package เอเจนต์หลักรอทุกส่วนแล้วส่งรายงาน `PASS`, `ISSUES` หรือ `BLOCKED` ชุดเดียว แทนส่งข้อมูลดิบจากทุกตัว
 
-## Fix a bug through a failing test
+<a id="review-a-branch-skeptically"></a>
+
+## รีวิว branch แบบตั้งข้อสงสัย
 
 ```text
-/poteto-mode repro the duplicate write first. if there's a cheap test path, /tdd it. then fix and rerun.
+/interrogate ตรวจทั้ง branch แบบตั้งข้อสงสัย ยังไม่ต้องแก้อะไร ไม่ต้องจับผิดเรื่องเล็กน้อย เว้นแต่เป็นบั๊กจริงหรือทำให้พฤติกรรมเดิมเสีย
 ```
 
-"if there's a cheap test path" matters. Forcing a test through brittle mocks proves less than running the real command, and the playbook is allowed to say so.
+ข้อกำหนดเหล่านี้มีผลจริง “ยังไม่ต้องแก้อะไร” จำกัดให้เป็นการอ่าน ส่วนกฎไม่จับผิดเรื่องเล็กน้อยช่วยกรองสิ่งรบกวน เพื่อให้รายการ `Act on` คุ้มเวลาคุณ
 
-## Keep a run honest while you're away
+<a id="fix-a-bug-through-a-failing-test"></a>
+
+## แก้บั๊กผ่านการทดสอบที่ล้มเหลว
 
 ```text
-im going to bed, keep going autonomously until every fixture passes. do not stop. keep a decision log i can audit in the morning.
+/poteto-mode ทำให้ปัญหาเขียนซ้ำเกิดขึ้นก่อน ถ้ามีวิธีทดสอบง่าย ๆ ให้ใช้ /tdd แล้วแก้และรันใหม่
 ```
 
-The full contract is on the [overnight page](./07-overnight.md). The short form works once the task and finish condition are already in the conversation.
+“ถ้ามีวิธีทดสอบง่าย ๆ” สำคัญ การฝืนใช้ mock ที่เปราะบางพิสูจน์ได้น้อยกว่ารันคำสั่งจริง และ playbook สามารถบอกเช่นนั้นได้
 
-## Redirect a drifting run
+<a id="keep-a-run-honest-while-youre-away"></a>
 
-Steering prompts are one line:
+## ให้การทำงานยังตรวจสอบได้ระหว่างที่คุณไม่อยู่
 
 ```text
-i said the goal is to repro. i did not ask for a fix yet.
+ผมจะนอนแล้ว ทำต่อเองจนข้อมูลทดสอบทุกชุดผ่าน อย่าหยุด เก็บบันทึกการตัดสินใจให้ผมตรวจตอนเช้า
+```
+
+ข้อตกลงเต็มอยู่ใน [หน้าทำงานข้ามคืน](./07-overnight.md) แบบสั้นใช้ได้เมื่อบทสนทนามีงานและเกณฑ์งานเสร็จแล้ว
+
+<a id="redirect-a-drifting-run"></a>
+
+## ดึงงานที่เริ่มออกนอกทางกลับมา
+
+คำขอชี้ทิศทางใช้เพียงหนึ่งบรรทัด:
+
+```text
+ผมบอกว่าเป้าหมายคือทำให้เกิดปัญหาซ้ำ ยังไม่ได้ขอให้แก้
 ```
 
 ```text
-apply prove it works. show me the real output, not the build log.
+ใช้ prove it works แสดงผลลัพธ์จริง ไม่ใช่แค่บันทึก build
 ```
 
 ```text
-/unslop that, no emdashes
+/unslop ตรงนั้น ไม่ใช้ em dash
 ```
 
-You rarely need more words. You need the right name, and [the principles page](./08-principles.md) is the vocabulary.
+แทบไม่ต้องพิมพ์ยาวกว่านี้ แค่เลือกชื่อให้ตรง [หน้าหลักการ](./08-principles.md) คือชุดคำศัพท์ที่ใช้
 
-## Get the reply in plain words
+<a id="get-the-reply-in-plain-words"></a>
+
+## ขอคำตอบด้วยภาษาง่าย ๆ
 
 ```text
 /bro
 ```
 
-That's the whole prompt. [`/bro`](../../skills/bro/SKILL.md) restates the last message like one human talking to another, no jargon, shorter. Use it when a reply is technically thorough and you still don't know what it said.
+คำขอมีแค่นี้ [`/bro`](../../skills/bro/SKILL.md) เล่าข้อความล่าสุดใหม่เหมือนคนคุยกับคน ใช้คำง่ายและสั้นลง ใช้เมื่อคำตอบละเอียดทางเทคนิคแต่คุณยังไม่เข้าใจว่าหมายถึงอะไร
 
-## The pitfalls
+<a id="the-pitfalls"></a>
 
-- **Enumerating skills in the prompt.** "use /how then /architect then /arena" reorders steps the playbook already sequences. State the goal and constraints. Name a skill only to override a default.
-- **A vague finish condition.** "make it better" gives `/loop` nothing to check. Give a command or artifact that can pass or fail.
-- **Parallel agents in one worktree.** They overwrite each other and the diff becomes archaeology. Say "own worktree per attempt" and the isolation is free.
-- **Using `/arena` for coverage.** `/arena` repeats one design or code brief, then picks a base and grafts the best parts. `/swarm` partitions slices or declared race arms and aggregates one report.
-- **Accepting every review comment.** Bots and humans both file real catches and noise in one list. `/interrogate` sorts findings into act-on and dismissed buckets with reasons, and you can override either way.
-- **Treating `auto` as a model slug.** `auto` and `inherit-parent` mean "omit the model field so the subagent inherits the parent chat model." [Setup](./01-setup.md) covers the roles.
-- **Reporting success off a green build.** A build proves it compiles. Ask for the real command, flow, stored value, or profile, and expect the evidence in the reply.
-- **Writing a `SKILL.md` freehand.** Route it through the [Authoring or modifying a skill playbook](../../skills/poteto-mode/playbooks/authoring-a-skill.md) so validation and review happen.
+## ข้อควรระวัง
 
-That's the guide. If you skipped ahead, go back to [setup](./01-setup.md) and run one real task. The habits stick from use, not from reading.
+- **เรียงชื่อสกิลในคำขอ:** “ใช้ /how แล้ว /architect แล้ว /arena” อาจสลับขั้นตอนที่ playbook จัดไว้ บอกเป้าหมายและข้อจำกัด ระบุสกิลเฉพาะเมื่ออยากเปลี่ยนค่าเริ่มต้น
+- **เกณฑ์งานเสร็จไม่ชัด:** “ทำให้ดีขึ้น” ไม่ให้สิ่งที่ `/loop` ตรวจได้ ระบุคำสั่งหรือผลงานที่ตัดสินว่าผ่านหรือไม่ผ่านได้
+- **เอเจนต์หลายตัวใช้ worktree เดียว:** จะเขียนทับกันจนต้องขุดหาที่มาของ diff บอกว่า “แยก worktree ต่อหนึ่งแนวทาง” เพื่อแยกงานตั้งแต่ต้น
+- **ใช้ `/arena` เพื่อตรวจให้ครอบคลุม:** `/arena` ให้โจทย์ออกแบบหรือเขียนโค้ดเดียวกัน แล้วเลือกฐานกับรวมส่วนที่ดีที่สุด ส่วน `/swarm` แบ่งส่วนงานหรือแนวแข่งขันที่ระบุไว้ แล้วรวมรายงานเดียว
+- **รับทุกคอมเมนต์รีวิว:** ทั้งบอตและคนส่งปัญหาจริงกับสิ่งไม่จำเป็นปนกัน `/interrogate` แยกสิ่งที่ควรแก้และสิ่งที่ไม่รับ พร้อมเหตุผล คุณเปลี่ยนคำตัดสินได้ทั้งสองทาง
+- **คิดว่า `auto` เป็นรหัสชื่อโมเดล:** `auto` และ `inherit-parent` หมายถึง “ไม่ระบุฟิลด์ model เพื่อให้เอเจนต์ย่อยใช้โมเดลของแชตหลัก” หน้า [ตั้งค่า](./01-setup.md) อธิบายบทบาทต่าง ๆ
+- **รายงานว่าสำเร็จเพราะ build ผ่าน:** build พิสูจน์ว่าคอมไพล์ได้ ขอคำสั่งจริง เส้นทางใช้งาน ค่าที่จัดเก็บ หรือข้อมูลวัด และคาดหวังหลักฐานในคำตอบ
+- **เขียน `SKILL.md` เองโดยไม่มีขั้นตอน:** ใช้ [แนวทางเขียนหรือแก้สกิล](../../skills/poteto-mode/playbooks/authoring-a-skill.md) เพื่อให้มีการตรวจและรีวิว
 
-Back to the [guide index](./README.md).
+คู่มือจบแล้ว หากข้ามมาอ่านหน้านี้ ให้กลับไป [ตั้งค่า](./01-setup.md) แล้วลองงานจริงหนึ่งงาน นิสัยจะติดจากการใช้ ไม่ใช่แค่อ่าน
+
+กลับไป [สารบัญคู่มือ](./README.md)

@@ -1,49 +1,59 @@
-# Set up pstack
+<a id="set-up-pstack"></a>
 
-In this page you install the plugin, pick which models pstack uses, and run your first task. Setup is one command plus a short conversation.
+# ตั้งค่า pstack
 
-## Install the plugin
+หน้านี้จะพาคุณติดตั้งปลั๊กอิน เลือกโมเดลที่ pstack จะใช้ และเริ่มงานแรก การตั้งค่าใช้คำสั่งเดียวกับการตอบคำถามสั้น ๆ
 
-In a Cursor chat, run:
+<a id="install-the-plugin"></a>
+
+## ติดตั้งปลั๊กอิน
+
+พิมพ์คำสั่งนี้ในแชตของ Cursor:
 
 ```text
 /add-plugin pstack
 ```
 
-Cursor confirms the plugin is installed.
+Cursor จะยืนยันว่าติดตั้งปลั๊กอินแล้ว
 
-## Pick your models
+<a id="pick-your-models"></a>
 
-Run:
+## เลือกโมเดลของคุณ
+
+เรียกใช้:
 
 ```text
 /setup-pstack
 ```
 
-[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) detects the models you have access to, asks for a reasoning budget, shows you each role (code delegates, judgment, the review panels), and asks what you want. Answer the questions. It writes `~/.cursor/rules/pstack-models.mdc`, a small rule every pstack skill reads.
+[`/setup-pstack`](../../skills/setup-pstack/SKILL.md) ตรวจหาโมเดลที่คุณใช้ได้ ถามงบประมาณสำหรับการใช้เหตุผล แสดงบทบาทแต่ละแบบ (เอเจนต์เขียนโค้ด ผู้ตัดสิน และทีมรีวิว) แล้วถามว่าคุณต้องการแบบไหน เมื่อตอบคำถามแล้ว ระบบจะเขียน `~/.cursor/rules/pstack-models.mdc` ซึ่งเป็นกฎสั้น ๆ ที่ทุกสกิลของ pstack อ่าน
 
-You only override what you care about. A role with no line in the rule keeps the skill's default. To restore a default, delete that role's line. A rerun of `/setup-pstack` keeps any role whose model differs from the default. A rule written before 0.15.3 pins the old default models, so delete those role lines, or delete the file, then run `/setup-pstack` again.
+คุณเปลี่ยนเฉพาะสิ่งที่สนใจได้ บทบาทที่ไม่มีบรรทัดระบุไว้จะใช้ค่าเริ่มต้นของสกิล หากต้องการคืนค่าเริ่มต้น ให้ลบบรรทัดของบทบาทนั้น การเรียก `/setup-pstack` อีกครั้งจะเก็บบทบาทที่เลือกโมเดลต่างจากค่าเริ่มต้นไว้ กฎที่เขียนก่อนเวอร์ชัน 0.15.3 จะตรึงโมเดลเริ่มต้นรุ่นเก่าไว้ จึงควรลบบรรทัดเหล่านั้นหรือลบไฟล์ แล้วเรียก `/setup-pstack` ใหม่
 
-You might be wondering what happens if you use Auto. Set a role to `inherit-parent` or `auto` and pstack omits the subagent `model` field, so the subagent inherits your parent chat model. Both values mean the same thing, and neither is a model slug. For a panel role the value is a list, and one subagent runs per entry, so the list length sets the panel size. Setup also configures `swarm workers`, the default model for every `/swarm` worker unless a race names a model for each arm.
+ถ้าใช้ Auto จะเกิดอะไรขึ้น? ตั้งบทบาทเป็น `inherit-parent` หรือ `auto` แล้ว pstack จะไม่ระบุฟิลด์ `model` ของเอเจนต์ย่อย ทำให้ใช้โมเดลเดียวกับแชตหลัก ทั้งสองค่ามีความหมายเดียวกัน และไม่ใช่รหัสชื่อโมเดล สำหรับบทบาททีมรีวิว ค่าจะเป็นรายการ โดยมีเอเจนต์ย่อยหนึ่งตัวต่อรายการ จำนวนรายการจึงกำหนดขนาดทีม การตั้งค่ายังครอบคลุม `swarm workers` ซึ่งเป็นโมเดลเริ่มต้นของผู้ทำงานทุกตัวใน `/swarm` เว้นแต่การแข่งแต่ละทางจะระบุโมเดลไว้เอง
 
-## Accept the verification offer, or don't
+<a id="accept-the-verification-offer-or-dont"></a>
 
-At the end of setup, `/setup-pstack` looks for a way to prove app behavior in your project, either a `verify-*` skill or an existing harness. If it finds neither, it offers once to generate one with [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md).
+## จะรับข้อเสนอสร้างสกิลตรวจสอบหรือไม่ก็ได้
 
-Say yes and it writes `.cursor/skills/verify-<app>/`, a project-local skill that teaches agents to drive your app the way a user does. It proves the skill works once before handing it over. Say no and setup moves on. You can run `/create-verification-skill` yourself any time. [Verify and ship](./06-verify-and-ship.md#create-a-project-verification-skill) covers when it earns its place.
+เมื่อจบการตั้งค่า `/setup-pstack` จะมองหาวิธีพิสูจน์พฤติกรรมของแอปในโปรเจกต์ เช่น สกิล `verify-*` หรือชุดเครื่องมือทดสอบที่มีอยู่ หากไม่พบทั้งสองอย่าง จะเสนอให้สร้างด้วย [`/create-verification-skill`](../../skills/create-verification-skill/SKILL.md) หนึ่งครั้ง
 
-After setup, start a new chat. The model rule applies to new sessions.
+ถ้าตอบตกลง ระบบจะเขียน `.cursor/skills/verify-<app>/` ซึ่งเป็นสกิลเฉพาะโปรเจกต์ที่สอนเอเจนต์ให้ใช้งานแอปแบบเดียวกับผู้ใช้ และพิสูจน์ว่าสกิลทำงานได้หนึ่งรอบก่อนส่งมอบ ถ้าปฏิเสธ การตั้งค่าจะดำเนินต่อ คุณเรียก `/create-verification-skill` เองภายหลังได้เสมอ หน้า [ตรวจสอบและส่งงาน](./06-verify-and-ship.md#create-a-project-verification-skill) อธิบายว่าเมื่อใดควรมีสกิลนี้
 
-## Run your first task
+หลังตั้งค่า ให้เริ่มแชตใหม่ กฎเลือกโมเดลจะมีผลกับเซสชันใหม่
 
-Pick something real but small, and describe it the way you'd describe it to a colleague:
+<a id="run-your-first-task"></a>
+
+## เริ่มงานแรก
+
+เลือกงานจริงที่มีขนาดเล็ก แล้วอธิบายเหมือนคุยกับเพื่อนร่วมงาน:
 
 ```text
-/poteto-mode add a --json flag to this command. text output stays byte-identical. verify both.
+/poteto-mode เพิ่ม flag --json ให้คำสั่งนี้ ผลลัพธ์แบบข้อความต้องเหมือนเดิมทุกไบต์ ตรวจสอบทั้งสองแบบ
 ```
 
-Watch the todo list. Its first items are the matched playbook's steps copied in, the Feature playbook for this prompt. If `/poteto-mode` skips a step, the step stays in the list with `skip: <reason>`, so you can see what it chose not to do.
+ดูรายการงานที่ต้องทำ รายการแรก ๆ คือขั้นตอนที่คัดลอกจากแนวทางทำงานที่ตรงกับคำขอ ซึ่งในตัวอย่างนี้คือ Feature หาก `/poteto-mode` ข้ามขั้นตอน ขั้นตอนนั้นจะยังอยู่ในรายการพร้อม `skip: <reason>` เพื่อให้คุณเห็นว่าเลือกไม่ทำอะไรและเพราะเหตุใด
 
-From here you can type normal follow-ups. `/poteto-mode` is sticky. It stays on for the conversation until you opt out by saying so.
+จากนี้พิมพ์ข้อความติดตามงานตามปกติได้ `/poteto-mode` จะทำงานต่อเนื่องตลอดบทสนทนา จนกว่าคุณจะบอกให้ปิดโหมด
 
-Next: [Route work through `/poteto-mode`](./02-poteto-mode.md).
+ถัดไป: [ส่งงานผ่าน `/poteto-mode`](./02-poteto-mode.md)

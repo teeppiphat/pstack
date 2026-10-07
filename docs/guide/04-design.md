@@ -1,81 +1,93 @@
-# Design before you write code
+<a id="design-before-you-write-code"></a>
 
-One attempt at a hard design locks in the first shape the model thought of. `/architect` settles types and boundaries before implementation. `/arena` runs several attempts at the same brief and merges the best parts. `/interrogate` has other models try to break the result. When the job is coverage rather than design synthesis, `/swarm` fans out slices or races and aggregates their results.
+# ออกแบบก่อนเขียนโค้ด
 
-![Three robots draft competing bridge models at their own tables under /architect, /arena, and /interrogate panels, while a judge robot with a clipboard inspects skeptically.](./images/design.jpg)
+การลองออกแบบยาก ๆ เพียงครั้งเดียวอาจทำให้ยึดติดกับรูปแบบแรกที่โมเดลนึกออก `/architect` ช่วยตกลงชนิดข้อมูลและขอบเขตก่อนลงมือ `/arena` ให้หลายเอเจนต์ลองจากโจทย์เดียวกันแล้วรวมส่วนที่ดีที่สุด `/interrogate` ให้โมเดลอื่นหาจุดที่ทำให้ผลลัพธ์พัง หากงานต้องการความครอบคลุมมากกว่ารวมแนวคิดการออกแบบ `/swarm` จะแบ่งงานหรือให้แข่งหลายทางแล้วรวบรวมผล
 
-## Settle the shape with `/architect`
+![หุ่นยนต์สามตัวร่างสะพานคนละแบบที่โต๊ะของตัวเอง ใต้ป้าย /architect, /arena และ /interrogate โดยมีหุ่นยนต์กรรมการถือคลิปบอร์ดตรวจอย่างตั้งข้อสงสัย](./images/design.jpg)
 
-```text
-/architect design the import pipeline before writing any code. i care most about how callers use it.
-```
+<a id="settle-the-shape-with-architect"></a>
 
-[`/architect`](../../skills/architect/SKILL.md) grounds itself first, running `/how` over the code the design touches and `/why` when it moves ownership or layers. Then it runs `/arena` to produce competing design sketches, with the caller's usage written first in each, followed by types, signatures, and a module map.
-
-By default it proceeds straight from the synthesized design into implementation. If you want to see the design first, say so:
+## กำหนดรูปแบบให้ชัดด้วย `/architect`
 
 ```text
-/architect with checkpoint. stop and show me before implementing.
+/architect ออกแบบกระบวนการ import ก่อนเขียนโค้ด ผมให้ความสำคัญที่สุดกับวิธีที่ผู้เรียกจะใช้งาน
 ```
 
-## Fan out attempts with `/arena`
+[`/architect`](../../skills/architect/SKILL.md) เริ่มจากทำความเข้าใจพื้นฐาน เรียก `/how` กับโค้ดที่เกี่ยวข้อง และ `/why` เมื่อมีการย้ายความรับผิดชอบหรือชั้นของระบบ จากนั้นเรียก `/arena` ให้สร้างแบบร่างหลายทางเลือก โดยแต่ละแบบเขียนตัวอย่างการใช้งานของผู้เรียกก่อน ตามด้วยชนิดข้อมูล รูปแบบฟังก์ชัน และแผนผังโมดูล
+
+ตามค่าเริ่มต้น จะนำแบบที่สังเคราะห์ได้ไปลงมือสร้างต่อทันที หากอยากดูแบบก่อน ให้บอก:
 
 ```text
-/arena take my prompt to the arena verbatim. i want to compare their proposals with yours.
+/architect with checkpoint หยุดให้ผมดูแบบก่อนลงมือสร้าง
 ```
 
-[`/arena`](../../skills/arena/SKILL.md) is the general tool underneath. N subagents attempt the same design or code brief in parallel, each writing to its own worktree or directory. A read-only judge, on a different model family when your configuration allows one, scores every candidate against a rubric. The coordinator reads each candidate end to end, picks a base, grafts in the best ideas from the losers, and verifies the result.
+<a id="fan-out-attempts-with-arena"></a>
+
+## ลองหลายแนวทางพร้อมกันด้วย `/arena`
+
+```text
+/arena ส่งคำขอของผมไปให้แต่ละทีมแบบตรงตามต้นฉบับ ผมอยากเทียบข้อเสนอของพวกเขากับของคุณ
+```
+
+[`/arena`](../../skills/arena/SKILL.md) เป็นเครื่องมือทั่วไปที่อยู่เบื้องหลัง ให้เอเจนต์ย่อย N ตัวลองออกแบบหรือเขียนโค้ดจากโจทย์เดียวกันพร้อมกัน แต่ละตัวใช้ worktree หรือไดเรกทอรีของตัวเอง ผู้ตัดสินแบบอ่านอย่างเดียวจะให้คะแนนตามเกณฑ์ โดยใช้โมเดลคนละตระกูลถ้าการตั้งค่ารองรับ ผู้ประสานงานอ่านผลงานทุกชิ้นตั้งแต่ต้นจนจบ เลือกหนึ่งชิ้นเป็นฐาน นำแนวคิดที่ดีที่สุดจากชิ้นอื่นมารวม แล้วตรวจสอบผล
 
 ```mermaid
 flowchart LR
-    A[One task] --> B[Configured panel]
-    B --> C[Candidate 1]
-    B --> D[Candidate 2]
-    B --> E[Candidate N]
-    C --> F[Cross-judge]
+    A[งานเดียว] --> B[ทีมตามการตั้งค่า]
+    B --> C[ทางเลือก 1]
+    B --> D[ทางเลือก 2]
+    B --> E[ทางเลือก N]
+    C --> F[ผู้ตัดสินจากอีกโมเดล]
     D --> F
     E --> F
-    F --> G[Pick a base]
-    G --> H[Graft the best parts]
-    H --> I[Verify]
+    F --> G[เลือกฐาน]
+    G --> H[รวมส่วนที่ดีที่สุด]
+    H --> I[ตรวจสอบ]
 ```
 
-The panel comes from your [`/setup-pstack`](../../skills/setup-pstack/SKILL.md) configuration, and you can adjust it per task. Ask for more candidates when the decision matters, fewer when it doesn't:
+ทีมมาจากการตั้งค่า [`/setup-pstack`](../../skills/setup-pstack/SKILL.md) และปรับเป็นรายงานได้ ขอทางเลือกมากขึ้นเมื่อการตัดสินใจสำคัญ หรือน้อยลงเมื่อไม่สำคัญมาก:
 
 ```text
-/arena this, 5 candidates. the cache key format is expensive to change later.
+/arena งานนี้ขอ 5 ทางเลือก รูปแบบ cache key จะมีต้นทุนสูงถ้าต้องเปลี่ยนทีหลัง
 ```
 
-## Cover slices and races with `/swarm`
+<a id="cover-slices-and-races-with-swarm"></a>
+
+## ตรวจให้ครอบคลุมหรือแข่งหลายทางด้วย `/swarm`
 
 ```text
-/swarm check every package under packages/ against its check.sh. one worker per package. one report.
+/swarm ตรวจทุก package ใต้ packages/ ด้วย check.sh ของแต่ละ package ใช้ผู้ทำงานหนึ่งตัวต่อ package แล้วสรุปรายงานเดียว
 ```
 
-[`/swarm`](../../skills/swarm/SKILL.md) fans N workers across independent slices, coverage matrices, gauntlet lanes, exploration partitions, or declared race arms. Each worker gets its own scope and check, then reports `PASS`, `ISSUES`, or `BLOCKED`. The parent waits for the workers and returns one compact report with any gaps or dropouts.
+[`/swarm`](../../skills/swarm/SKILL.md) กระจายผู้ทำงาน N ตัวไปยังส่วนงานอิสระ ตารางความครอบคลุม ชุดตรวจหลายสาย พื้นที่สำรวจ หรือแนวทางแข่งขันที่กำหนดไว้ แต่ละตัวได้รับขอบเขตกับวิธีตรวจของตัวเอง แล้วรายงาน `PASS`, `ISSUES` หรือ `BLOCKED` เอเจนต์หลักรอทุกตัวและส่งรายงานสั้นชุดเดียว พร้อมระบุส่วนที่ตกหล่นหรืองานที่หยุดไป
 
-Reach for it when parallelism buys coverage or lets independent checks race. `/arena` gives every worker the same design or code brief, then picks a base and grafts the best parts. `/swarm` covers slices or runs a race with a selection rule declared up front. It does not use the base-selection and grafting ceremony.
+ใช้เมื่อการทำพร้อมกันช่วยเพิ่มความครอบคลุมหรือเปิดให้วิธีตรวจอิสระแข่งกัน `/arena` ให้โจทย์ออกแบบหรือเขียนโค้ดเดียวกันแก่ทุกตัว แล้วเลือกฐานและรวมส่วนที่ดีที่สุด ส่วน `/swarm` แบ่งงานหรือแข่งตามกฎเลือกผู้ชนะที่ประกาศไว้ตั้งแต่ต้น ไม่ใช้กระบวนการเลือกฐานและรวมแบบของ `/arena`
 
-## Break it with `/interrogate`
+<a id="break-it-with-interrogate"></a>
+
+## หาจุดพังด้วย `/interrogate`
 
 ```text
-/interrogate the whole branch, but skeptically. no nitpicks unless it's an actual bug or regression.
+/interrogate ตรวจทั้ง branch แบบตั้งข้อสงสัย ไม่ต้องจับผิดเรื่องเล็กน้อย เว้นแต่เป็นบั๊กจริงหรือทำให้พฤติกรรมเดิมเสีย
 ```
 
-[`/interrogate`](../../skills/interrogate/SKILL.md) sends the same diff, intent, and rubric to several reviewers on different model families. Model diversity is the point. Different models have different blind spots, so a finding two models raise independently is high-confidence signal. The lead sorts everything into `Act on`, `Consider`, `Noted`, and `Dismissed`, with a reason for each dismissal, and applies nothing automatically.
+[`/interrogate`](../../skills/interrogate/SKILL.md) ส่ง diff เจตนา และเกณฑ์เดียวกันให้ผู้รีวิวหลายตัวจากโมเดลต่างตระกูล ความหลากหลายนี้สำคัญ เพราะแต่ละโมเดลมีจุดบอดต่างกัน ข้อค้นพบที่สองโมเดลพบแยกกันจึงน่าเชื่อถือสูง หัวหน้าจัดรายการเป็น `Act on` (ควรแก้), `Consider` (ควรพิจารณา), `Noted` (รับทราบ) และ `Dismissed` (ไม่รับข้อเสนอ) พร้อมเหตุผลสำหรับแต่ละรายการที่ไม่รับ และไม่แก้อะไรอัตโนมัติ
 
-Read the dismissals too. The lead is a pragmatic senior engineer, not an oracle, and you can override it.
+อ่านเหตุผลที่ไม่รับด้วย หัวหน้าเป็นวิศวกรอาวุโสที่ใช้วิจารณญาณ ไม่ได้รู้ถูกทุกเรื่อง คุณเปลี่ยนคำตัดสินได้
 
-## How much design work does a task deserve?
+<a id="how-much-design-work-does-a-task-deserve"></a>
 
-You might be wondering whether every change needs this. No. Most changes need none of it. A rough ladder:
+## งานหนึ่งควรใช้เวลาออกแบบแค่ไหน?
 
-- A small, finished change you're unsure about needs `/interrogate` alone.
-- A change that crosses function boundaries or moves ownership earns `/architect`, which brings `/arena` with it.
-- A standalone decision where independent attempts would help, like naming, formats, or an algorithm, is `/arena` directly.
-- A coverage matrix, set of parallel checks, or race with declared arms is `/swarm`.
-- A contested design that's expensive to reverse gets `/architect`, then `/interrogate` before shipping.
+ทุกการเปลี่ยนแปลงต้องทำทั้งหมดนี้ไหม? ไม่จำเป็น ส่วนใหญ่ไม่ต้องใช้เลย ลองแบ่งระดับคร่าว ๆ:
 
-`/poteto-mode` already applies this ladder. Boundary-crossing work triggers `/architect` on its own, so you reach for these directly mainly when you want more or less scrutiny than the default.
+- งานเล็กที่ทำเสร็จแล้วแต่ยังไม่มั่นใจ ใช้ `/interrogate` อย่างเดียว
+- งานที่ข้ามขอบเขตฟังก์ชันหรือย้ายความรับผิดชอบ ควรใช้ `/architect` ซึ่งเรียก `/arena` มาด้วย
+- การตัดสินใจเฉพาะเรื่องที่ลองหลายทางแล้วช่วยได้ เช่น ชื่อ รูปแบบ หรืออัลกอริทึม ใช้ `/arena` โดยตรง
+- ตารางความครอบคลุม ชุดตรวจพร้อมกัน หรือการแข่งขันที่กำหนดแต่ละทางไว้ ใช้ `/swarm`
+- แบบที่ยังมีข้อถกเถียงและเปลี่ยนกลับยาก ใช้ `/architect` แล้ว `/interrogate` ก่อนส่งงาน
 
-Next: [Build and clean the change](./05-build-and-clean.md).
+`/poteto-mode` ใช้ระดับเหล่านี้อยู่แล้ว งานที่ข้ามขอบเขตจะเรียก `/architect` เอง คุณจึงมักเรียกสกิลเหล่านี้โดยตรงเมื่ออยากได้การตรวจมากหรือน้อยกว่าค่าเริ่มต้น
+
+ถัดไป: [ลงมือสร้างและเก็บงานให้เรียบร้อย](./05-build-and-clean.md)
